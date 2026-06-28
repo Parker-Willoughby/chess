@@ -2,6 +2,8 @@ package chess;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -57,10 +59,10 @@ public class ChessPiece {
     }
 
     public String RanIntoPiece(ChessPosition position, ChessBoard board) {
-        if (board.getPiece(position) == null && board.getPiece(position).getTeamColor() == pieceColor) {
+        if (board.getPiece(position) != null && board.getPiece(position).getTeamColor() == pieceColor) {
             return "On Team";
         }
-        else if (board.getPiece(position) == null && board.getPiece(position).getTeamColor() != pieceColor) {
+        else if (board.getPiece(position) != null && board.getPiece(position).getTeamColor() != pieceColor) {
             return "Other Team";
         }
         else {
@@ -70,9 +72,22 @@ public class ChessPiece {
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
-        Collection<ChessMove> validmoves;
+        Collection<ChessMove> validMoves = new ArrayList<>();
         if (piece.getPieceType() == PieceType.KING) {
-            ChessMove move = ChessMove(myPosition, new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn()+1), null);
+            List<ChessPosition> kingPositions = List.of(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn()),
+                    new ChessPosition(myPosition.getRow(), myPosition.getColumn() + 1),
+                    new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn()),
+                    new ChessPosition(myPosition.getRow(), myPosition.getColumn() - 1),
+                    new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1),
+                    new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1),
+                    new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1),
+                    new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1));
+            for (ChessPosition position:kingPositions) {
+                if (!IsOffBoard(position) && RanIntoPiece(position, board) != "On Team") {
+                    validMoves.add(new ChessMove(myPosition, position, null));
+                }
+            }
+
         }
         else if (piece.getPieceType() == PieceType.QUEEN) {
         }
@@ -85,5 +100,20 @@ public class ChessPiece {
         }
         else if (piece.getPieceType() == PieceType.PAWN) {
         }
+        return validMoves;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
     }
 }
