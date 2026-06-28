@@ -11,7 +11,12 @@ import java.util.List;
  */
 public class ChessPiece {
 
+    private final ChessGame.TeamColor pieceColor;
+    private final PieceType type;
+
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+        this.pieceColor = pieceColor;
+        this.type = type;
     }
 
     /**
@@ -30,14 +35,14 @@ public class ChessPiece {
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        throw new RuntimeException("Not implemented");
+        return pieceColor;
     }
 
     /**
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        throw new RuntimeException("Not implemented");
+        return type;
     }
 
     /**
@@ -47,7 +52,38 @@ public class ChessPiece {
      *
      * @return Collection of valid moves
      */
+    public boolean IsOffBoard(ChessPosition position) {
+        return (0 > position.getRow() || position.getRow() > 8 || 0 > position.getColumn() || position.getColumn() > 8 );
+    }
+
+    public String RanIntoPiece(ChessPosition position, ChessBoard board) {
+        if (board.getPiece(position) == null && board.getPiece(position).getTeamColor() == pieceColor) {
+            return "On Team";
+        }
+        else if (board.getPiece(position) == null && board.getPiece(position).getTeamColor() != pieceColor) {
+            return "Other Team";
+        }
+        else {
+            return "Empty";
+        }
+    }
+
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return List.of();
+        ChessPiece piece = board.getPiece(myPosition);
+        Collection<ChessMove> validmoves;
+        if (piece.getPieceType() == PieceType.KING) {
+            ChessMove move = ChessMove(myPosition, new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn()+1), null);
+        }
+        else if (piece.getPieceType() == PieceType.QUEEN) {
+        }
+        else if (piece.getPieceType() == PieceType.BISHOP) {
+            return List.of(new ChessMove(new ChessPosition(5,4), new ChessPosition(1, 8), null));
+        }
+        else if (piece.getPieceType() == PieceType.KNIGHT) {
+        }
+        else if (piece.getPieceType() == PieceType.ROOK) {
+        }
+        else if (piece.getPieceType() == PieceType.PAWN) {
+        }
     }
 }
