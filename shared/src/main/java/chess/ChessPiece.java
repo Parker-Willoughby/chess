@@ -55,7 +55,7 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public boolean IsOffBoard(ChessPosition position) {
-        return (0 > position.getRow() || position.getRow() > 8 || 0 > position.getColumn() || position.getColumn() > 8 );
+        return (1 > position.getRow() || position.getRow() > 8 || 1 > position.getColumn() || position.getColumn() > 8 );
     }
 
     public String RanIntoPiece(ChessPosition position, ChessBoard board) {
@@ -87,14 +87,27 @@ public class ChessPiece {
                     validMoves.add(new ChessMove(myPosition, position, null));
                 }
             }
-
         }
         else if (piece.getPieceType() == PieceType.QUEEN) {
+
         }
         else if (piece.getPieceType() == PieceType.BISHOP) {
             return List.of(new ChessMove(new ChessPosition(5,4), new ChessPosition(1, 8), null));
         }
         else if (piece.getPieceType() == PieceType.KNIGHT) {
+            List<ChessPosition> knightPositions = List.of(new ChessPosition(myPosition.getRow() + 2, myPosition.getColumn() + 1),
+                    new ChessPosition(myPosition.getRow() + 2, myPosition.getColumn() - 1),
+                    new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 2),
+                    new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 2),
+                    new ChessPosition(myPosition.getRow() - 2, myPosition.getColumn() + 1),
+                    new ChessPosition(myPosition.getRow() - 2, myPosition.getColumn() - 1),
+                    new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 2),
+                    new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 2));
+            for (ChessPosition position:knightPositions) {
+                if (!IsOffBoard(position) && RanIntoPiece(position, board) != "On Team") {
+                    validMoves.add(new ChessMove(myPosition, position, null));
+                }
+            }
         }
         else if (piece.getPieceType() == PieceType.ROOK) {
         }
