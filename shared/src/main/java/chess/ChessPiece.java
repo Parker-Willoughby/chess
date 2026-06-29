@@ -105,6 +105,8 @@ public class ChessPiece {
             }
         }
         else if (piece.getPieceType() == PieceType.QUEEN) {
+            int [][] queenVectors = {{1, 1}, {-1, 1}, {1, -1}, {-1, -1}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+            validMoves = expandVectors(myPosition, queenVectors, board);
         }
         else if (piece.getPieceType() == PieceType.BISHOP) {
             int [][] bishopVectors = {{1, 1}, {-1, 1}, {1, -1}, {-1, -1}};
