@@ -132,6 +132,57 @@ public class ChessPiece {
             validMoves = expandVectors(myPosition, rookVectors, board);
         }
         else if (piece.getPieceType() == PieceType.PAWN) {
+            int[] moveNumbers = new int[3];
+            if (pieceColor == ChessGame.TeamColor.WHITE) {
+                moveNumbers[0] = 1;
+                moveNumbers[1] = 8;
+                moveNumbers[2] = 2;
+            }
+            else {
+                moveNumbers[0] = -1;
+                moveNumbers[1] = 1;
+                moveNumbers[2] = 7;
+            }
+            ChessPosition forwardPosition = new ChessPosition(myPosition.getRow() + moveNumbers[0], myPosition.getColumn());
+            ChessPosition diagonalRight = new ChessPosition(myPosition.getRow() + moveNumbers[0], myPosition.getColumn() + 1);
+            ChessPosition diagonalLeft = new ChessPosition(myPosition.getRow() + moveNumbers[0], myPosition.getColumn() - 1);
+            ChessPosition doubleForward = new ChessPosition(myPosition.getRow() + 2*moveNumbers[0], myPosition.getColumn());
+            if(RanIntoPiece(forwardPosition, board) == "Empty" && !IsOffBoard(forwardPosition)) {
+                if(forwardPosition.getRow() == moveNumbers[1]) {
+                    validMoves.add(new ChessMove(myPosition, forwardPosition, PieceType.QUEEN));
+                    validMoves.add(new ChessMove(myPosition, forwardPosition, PieceType.ROOK));
+                    validMoves.add(new ChessMove(myPosition, forwardPosition, PieceType.KNIGHT));
+                    validMoves.add(new ChessMove(myPosition, forwardPosition, PieceType.BISHOP));
+                }
+                else {
+                    validMoves.add(new ChessMove(myPosition, forwardPosition, null));
+                    if (myPosition.getRow() == moveNumbers[2] && RanIntoPiece(doubleForward, board) == "Empty") {
+                        validMoves.add(new ChessMove(myPosition, doubleForward, null));
+                    }
+                }
+            }
+            if(!IsOffBoard(diagonalRight) && RanIntoPiece(diagonalRight, board) == "Other Team") {
+                if(diagonalRight.getRow() == moveNumbers[1]) {
+                    validMoves.add(new ChessMove(myPosition, diagonalRight, PieceType.QUEEN));
+                    validMoves.add(new ChessMove(myPosition, diagonalRight, PieceType.ROOK));
+                    validMoves.add(new ChessMove(myPosition, diagonalRight, PieceType.KNIGHT));
+                    validMoves.add(new ChessMove(myPosition, diagonalRight, PieceType.BISHOP));
+                }
+                else {
+                    validMoves.add(new ChessMove(myPosition, diagonalRight, null));
+                }
+            }
+            if(!IsOffBoard(diagonalLeft) && RanIntoPiece(diagonalLeft, board) == "Other Team") {
+                if(diagonalLeft.getRow() == moveNumbers[1]) {
+                    validMoves.add(new ChessMove(myPosition, diagonalLeft, PieceType.QUEEN));
+                    validMoves.add(new ChessMove(myPosition, diagonalLeft, PieceType.ROOK));
+                    validMoves.add(new ChessMove(myPosition, diagonalLeft, PieceType.KNIGHT));
+                    validMoves.add(new ChessMove(myPosition, diagonalLeft, PieceType.BISHOP));
+                }
+                else {
+                    validMoves.add(new ChessMove(myPosition, diagonalLeft, null));
+                }
+            }
         }
         return validMoves;
     }
