@@ -70,6 +70,22 @@ public class ChessPiece {
         }
     }
 
+    public Collection<ChessMove> expandVectors(ChessPosition startPosition, int[][] baseVectors, ChessBoard board) {
+        Collection<ChessMove> validMoves = new ArrayList<>();
+        for(int[] direction: baseVectors) {
+            ChessPosition nextPosition = new ChessPosition(startPosition.getRow() + direction[0], startPosition.getColumn() + direction[1]);
+            while (!IsOffBoard(nextPosition) && RanIntoPiece(nextPosition, board) != "On Team") {
+                validMoves.add(new ChessMove(startPosition, nextPosition, null));
+                if(RanIntoPiece(nextPosition, board) == "Other Team") {
+                    break;
+                }
+                nextPosition = new ChessPosition(nextPosition.getRow() + direction[0], nextPosition.getColumn() + direction[1]);
+            }
+        }
+        return validMoves;
+    }
+
+
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
         Collection<ChessMove> validMoves = new ArrayList<>();
@@ -89,10 +105,10 @@ public class ChessPiece {
             }
         }
         else if (piece.getPieceType() == PieceType.QUEEN) {
-
         }
         else if (piece.getPieceType() == PieceType.BISHOP) {
-            return List.of(new ChessMove(new ChessPosition(5,4), new ChessPosition(1, 8), null));
+            int [][] bishopVectors = {{1, 1}, {-1, 1}, {1, -1}, {-1, -1}};
+            validMoves = expandVectors(myPosition, bishopVectors, board);
         }
         else if (piece.getPieceType() == PieceType.KNIGHT) {
             List<ChessPosition> knightPositions = List.of(new ChessPosition(myPosition.getRow() + 2, myPosition.getColumn() + 1),
