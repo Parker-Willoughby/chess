@@ -128,6 +128,8 @@ public class ChessPiece {
             }
         }
         else if (piece.getPieceType() == PieceType.ROOK) {
+            int [][] rookVectors = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+            validMoves = expandVectors(myPosition, rookVectors, board);
         }
         else if (piece.getPieceType() == PieceType.PAWN) {
         }
