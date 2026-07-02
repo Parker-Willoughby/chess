@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -12,6 +14,8 @@ import java.util.Objects;
 public class ChessBoard {
 
     ChessPiece[][] squares = new ChessPiece[8][8];
+    Collection<ChessPosition> occupiedWhite = new ArrayList<>();
+    Collection<ChessPosition> occupiedBlack = new ArrayList<>();
 
     public ChessBoard() {
     }
@@ -23,6 +27,22 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
+        if (getPiece(position) != null) {
+            if(getPiece(position).getTeamColor() == ChessGame.TeamColor.WHITE){
+                occupiedWhite.remove(position);
+            }
+            else {
+                occupiedBlack.remove(position);
+            }
+        }
+        if(piece != null) {
+            if(piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                occupiedWhite.add(position);
+            }
+            else {
+                occupiedBlack.add(position);
+            }
+        }
         squares[position.getRow()-1][position.getColumn()-1] = piece;
     }
 
@@ -67,6 +87,13 @@ public class ChessBoard {
         addPiece(new ChessPosition(1, 5), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING));
         addPiece(new ChessPosition(8, 4), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN));
         addPiece(new ChessPosition(8, 5), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING));
+    }
+
+    public Collection<ChessPosition> getOccupied(ChessGame.TeamColor team) {
+        if (team == ChessGame.TeamColor.WHITE) {
+            return occupiedWhite;
+        }
+        return occupiedBlack;
     }
 
     @Override
