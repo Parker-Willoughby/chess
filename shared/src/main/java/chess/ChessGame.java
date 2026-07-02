@@ -12,6 +12,8 @@ public class ChessGame {
 
     TeamColor teamTurn = TeamColor.WHITE;
     ChessBoard gameBoard = new ChessBoard();
+    ChessPosition whiteKing = new ChessPosition(1, 5);
+    ChessPosition blackKing = new ChessPosition(8, 5);
 
     public ChessGame() {
         gameBoard.resetBoard();
@@ -31,6 +33,13 @@ public class ChessGame {
      */
     public void setTeamTurn(TeamColor team) {
         teamTurn = team;
+    }
+
+    public TeamColor otherTeam(TeamColor team) {
+        if (team == TeamColor.BLACK) {
+            return TeamColor.WHITE;
+        }
+        return TeamColor.BLACK;
     }
 
     /**
@@ -62,6 +71,9 @@ public class ChessGame {
         if (validMoves(move.getStartPosition()).contains(move)){
             ChessPiece pieceMoved = gameBoard.getPiece(move.getStartPosition());
             gameBoard.addPiece(move.getStartPosition(), null);
+            if(pieceMoved.getPieceType() == ChessPiece.PieceType.KING) {
+                setKingPosition(move.getEndPosition(), teamTurn);
+            }
             if(move.getPromotionPiece() != null) {
                 gameBoard.addPiece(move.getEndPosition(), new ChessPiece(teamTurn, move.getPromotionPiece()));
             }
@@ -87,7 +99,12 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        for (ChessPosition position: gameBoard.getOccupied(otherTeam(teamColor))) {
+            if(validMoves(position).contains(new ChessMove(position, getKingPosition(teamColor), null))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -127,5 +144,21 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return gameBoard;
+    }
+
+    public void setKingPosition(ChessPosition newPosition, TeamColor team) {
+        if (team == TeamColor.WHITE) {
+            whiteKing = newPosition;
+        }
+        else {
+            blackKing = newPosition;
+        }
+    }
+
+    public ChessPosition getKingPosition(TeamColor team) {
+        if (team == TeamColor.WHITE) {
+            return whiteKing;
+        }
+        return blackKing;
     }
 }
