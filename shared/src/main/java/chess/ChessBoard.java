@@ -110,4 +110,8 @@ public class ChessBoard {
         return Arrays.deepHashCode(squares);
     }
 
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 }
