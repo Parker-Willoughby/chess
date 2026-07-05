@@ -20,6 +20,14 @@ public class ChessBoard {
     public ChessBoard() {
     }
 
+    public ChessBoard(ChessBoard copy) {
+        for(int i = 0; i < 8; i++) {
+            squares[i] = Arrays.copyOf(copy.squares[i], copy.squares[i].length);
+        }
+        occupiedWhite = copy.occupiedWhite;
+        occupiedBlack = copy.occupiedBlack;
+    }
+
     /**
      * Adds a chess piece to the chessboard
      *
@@ -108,10 +116,5 @@ public class ChessBoard {
     @Override
     public int hashCode() {
         return Arrays.deepHashCode(squares);
-    }
-
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 }
