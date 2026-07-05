@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * A class that can manage a chess game, making moves on a board
@@ -59,18 +61,17 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = gameBoard.getPiece(startPosition);
-        Collection<ChessMove> validMoves = piece.pieceMoves(gameBoard, startPosition);
-        for (ChessMove move: validMoves) {
-            ChessBoard savedBoard = new ChessBoard(gameBoard);
-            try {
-                makeMove(move);
+        Collection<ChessMove> validMoves = new ArrayList<>();
+        if (piece != null) {
+            validMoves = piece.pieceMoves(gameBoard, startPosition);
+            for (ChessMove move : validMoves) {
+                ChessBoard savedBoard = new ChessBoard(gameBoard);
+                makeInvalidMove(move);
+                if (isInCheck(teamTurn)) {
+                    validMoves.remove(move);
+                }
+                setBoard(savedBoard);
             }
-            catch (InvalidMoveException e) {
-            }
-            if (isInCheck(teamTurn)) {
-               validMoves.remove(move);
-            }
-            setBoard(savedBoard);
         }
         return validMoves;
     }
@@ -106,6 +107,21 @@ public class ChessGame {
         }
     }
 
+
+    public void makeInvalidMove(ChessMove move) {
+
+        ChessPiece pieceMoved = gameBoard.getPiece(move.getStartPosition());
+        gameBoard.addPiece(move.getStartPosition(), null);
+        if(pieceMoved.getPieceType() == ChessPiece.PieceType.KING) {
+            setKingPosition(move.getEndPosition(), teamTurn);
+        }
+        if(move.getPromotionPiece() != null) {
+            gameBoard.addPiece(move.getEndPosition(), new ChessPiece(teamTurn, move.getPromotionPiece()));
+        }
+        else {
+            gameBoard.addPiece(move.getEndPosition(), pieceMoved);
+        }
+    }
     /**
      * Determines if the given team is in check
      *
@@ -116,7 +132,8 @@ public class ChessGame {
         for (ChessPosition position: gameBoard.getOccupied(otherTeam(teamColor))) {
             ChessMove takeKing = new ChessMove(position, getKingPosition(teamColor), null);
             ChessMove takeKingPawn = new ChessMove(position, getKingPosition(teamColor), ChessPiece.PieceType.QUEEN);
-            if(validMoves(position).contains(takeKing) || validMoves(position).contains(takeKingPawn)) {
+            ChessPiece piece = gameBoard.getPiece(position);
+            if(piece.pieceMoves(gameBoard, position).contains(takeKing) || piece.pieceMoves(gameBoard, position).contains(takeKingPawn)) {
                 return true;
             }
         }
@@ -186,5 +203,19 @@ public class ChessGame {
             return whiteKing;
         }
         return blackKing;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return teamTurn == chessGame.teamTurn && Objects.equals(gameBoard, chessGame.gameBoard) && Objects.equals(whiteKing, chessGame.whiteKing) && Objects.equals(blackKing, chessGame.blackKing);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(teamTurn, gameBoard, whiteKing, blackKing);
     }
 }
