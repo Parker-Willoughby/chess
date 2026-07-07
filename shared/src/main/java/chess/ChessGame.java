@@ -107,6 +107,9 @@ public class ChessGame {
             if(pieceMoved.getPieceType() == ChessPiece.PieceType.KING) {
                 setKingPosition(move.getEndPosition(), teamTurn);
                 setKingsRooksMoved(move.getStartPosition());
+                if (-1 > (move.getStartPosition().getColumn() - move.getEndPosition().getColumn()) || 1 < (move.getStartPosition().getColumn() - move.getEndPosition().getColumn())) {
+                    makeRookCastle(move);
+                }
             }
             if(pieceMoved.getPieceType() == ChessPiece.PieceType.ROOK) {
                 setKingsRooksMoved(move.getStartPosition());
@@ -127,6 +130,29 @@ public class ChessGame {
         else {
             throw new InvalidMoveException("Invalid Move");
         }
+    }
+
+    public void makeRookCastle(ChessMove move) {
+        ChessMove rightWhite = new ChessMove(new ChessPosition(1, 5), new ChessPosition(1, 7), null);
+        ChessMove leftWhite = new ChessMove(new ChessPosition(1, 5), new ChessPosition(1, 3), null);
+        ChessMove rightBlack = new ChessMove(new ChessPosition(8, 5), new ChessPosition(8, 7), null);
+        ChessMove rookMove;
+        if (move.equals(rightWhite)) {
+            rookMove = new ChessMove(new ChessPosition(1, 8), new ChessPosition(1, 6), null);
+        }
+        else if (move.equals(leftWhite)) {
+            rookMove = new ChessMove(new ChessPosition(1, 1), new ChessPosition(1, 4), null);
+        }
+        else if (move.equals(rightBlack)) {
+            rookMove = new ChessMove(new ChessPosition(8, 8), new ChessPosition(8, 6), null);
+        }
+        else {
+            rookMove = new ChessMove(new ChessPosition(8, 1), new ChessPosition(8, 4), null);
+        }
+        ChessPiece pieceMoved = gameBoard.getPiece(rookMove.getStartPosition());
+        gameBoard.addPiece(rookMove.getStartPosition(), null);
+        gameBoard.addPiece(rookMove.getEndPosition(), pieceMoved);
+        setKingsRooksMoved(rookMove.getStartPosition());
     }
 
 
