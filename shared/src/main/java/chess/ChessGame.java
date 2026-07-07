@@ -61,14 +61,15 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = gameBoard.getPiece(startPosition);
+        Collection<ChessMove> possibleMoves = new ArrayList<>();
         Collection<ChessMove> validMoves = new ArrayList<>();
         if (piece != null) {
-            validMoves = piece.pieceMoves(gameBoard, startPosition);
-            for (ChessMove move : validMoves) {
+            possibleMoves = piece.pieceMoves(gameBoard, startPosition);
+            for (ChessMove move : possibleMoves) {
                 ChessBoard savedBoard = new ChessBoard(gameBoard);
                 makeInvalidMove(move);
-                if (isInCheck(teamTurn)) {
-                    validMoves.remove(move);
+                if (!isInCheck(teamTurn)) {
+                    validMoves.add(move);
                 }
                 setBoard(savedBoard);
             }
@@ -133,8 +134,10 @@ public class ChessGame {
             ChessMove takeKing = new ChessMove(position, getKingPosition(teamColor), null);
             ChessMove takeKingPawn = new ChessMove(position, getKingPosition(teamColor), ChessPiece.PieceType.QUEEN);
             ChessPiece piece = gameBoard.getPiece(position);
-            if(piece.pieceMoves(gameBoard, position).contains(takeKing) || piece.pieceMoves(gameBoard, position).contains(takeKingPawn)) {
-                return true;
+            if (piece != null) {
+                if (piece.pieceMoves(gameBoard, position).contains(takeKing) || piece.pieceMoves(gameBoard, position).contains(takeKingPawn)) {
+                    return true;
+                }
             }
         }
         return false;
@@ -147,12 +150,17 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        for (ChessPosition position: gameBoard.getOccupied(teamColor)){
-            if (isInCheck(teamColor) && !validMoves(position).isEmpty()) {
-                return false;
-            }
+        if (!isInCheck(teamColor)){
+            return false;
         }
-        return true;
+        else {
+            for (ChessPosition position : gameBoard.getOccupied(teamColor)) {
+                if (!validMoves(position).isEmpty()) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 
     /**

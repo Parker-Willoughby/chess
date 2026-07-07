@@ -24,8 +24,16 @@ public class ChessBoard {
         for(int i = 0; i < 8; i++) {
             squares[i] = Arrays.copyOf(copy.squares[i], copy.squares[i].length);
         }
-        occupiedWhite = copy.occupiedWhite;
-        occupiedBlack = copy.occupiedBlack;
+        Collection<ChessPosition> newOccupiedWhite = new ArrayList<>();
+        Collection<ChessPosition> newOccupiedBlack = new ArrayList<>();
+        for (ChessPosition position: copy.occupiedWhite) {
+            newOccupiedWhite.add(new ChessPosition(position.getRow(), position.getColumn()));
+        }
+        for (ChessPosition position: copy.occupiedBlack) {
+            newOccupiedBlack.add(new ChessPosition(position.getRow(), position.getColumn()));
+        }
+        occupiedWhite = newOccupiedWhite;
+        occupiedBlack = newOccupiedBlack;
     }
 
     /**
