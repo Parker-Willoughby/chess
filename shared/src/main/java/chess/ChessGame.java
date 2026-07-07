@@ -65,13 +65,15 @@ public class ChessGame {
         Collection<ChessMove> validMoves = new ArrayList<>();
         if (piece != null) {
             possibleMoves = piece.pieceMoves(gameBoard, startPosition);
+            ChessBoard savedBoard = new ChessBoard(gameBoard);
+            ChessPosition oldKingPosition = getKingPosition(teamTurn);
             for (ChessMove move : possibleMoves) {
-                ChessBoard savedBoard = new ChessBoard(gameBoard);
                 makeInvalidMove(move);
                 if (!isInCheck(teamTurn)) {
                     validMoves.add(move);
                 }
                 setBoard(savedBoard);
+                setKingPosition(oldKingPosition, teamTurn);
             }
         }
         return validMoves;
@@ -110,7 +112,6 @@ public class ChessGame {
 
 
     public void makeInvalidMove(ChessMove move) {
-
         ChessPiece pieceMoved = gameBoard.getPiece(move.getStartPosition());
         gameBoard.addPiece(move.getStartPosition(), null);
         if(pieceMoved.getPieceType() == ChessPiece.PieceType.KING) {
@@ -175,7 +176,11 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        for (ChessPosition position: gameBoard.getOccupied(teamColor)){
+        Collection<ChessPosition> currentOccupied = new ArrayList<>();
+        for (ChessPosition position: gameBoard.getOccupied(teamColor)) {
+            currentOccupied.add(new ChessPosition(position.getRow(), position.getColumn()));
+        }
+        for (ChessPosition position: currentOccupied){
             if (isInCheck(teamColor) || !validMoves(position).isEmpty()) {
                 return false;
             }
