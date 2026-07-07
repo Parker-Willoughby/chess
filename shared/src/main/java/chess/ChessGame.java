@@ -154,7 +154,11 @@ public class ChessGame {
             return false;
         }
         else {
-            for (ChessPosition position : gameBoard.getOccupied(teamColor)) {
+            Collection<ChessPosition> currentOccupied = new ArrayList<>();
+            for (ChessPosition position: gameBoard.getOccupied(teamColor)) {
+                currentOccupied.add(new ChessPosition(position.getRow(), position.getColumn()));
+            }
+            for (ChessPosition position : currentOccupied) {
                 if (!validMoves(position).isEmpty()) {
                     return false;
                 }
