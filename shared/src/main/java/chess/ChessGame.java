@@ -65,9 +65,9 @@ public class ChessGame {
         Collection<ChessMove> validMoves = new ArrayList<>();
         if (piece != null) {
             possibleMoves = piece.pieceMoves(gameBoard, startPosition);
-            ChessBoard savedBoard = new ChessBoard(gameBoard);
             ChessPosition oldKingPosition = getKingPosition(teamTurn);
             for (ChessMove move : possibleMoves) {
+                ChessBoard savedBoard = new ChessBoard(gameBoard);
                 makeInvalidMove(move);
                 if (!isInCheck(teamTurn)) {
                     validMoves.add(move);
