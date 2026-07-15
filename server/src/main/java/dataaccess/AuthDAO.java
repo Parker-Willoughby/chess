@@ -27,7 +27,7 @@ public class AuthDAO {
 
     public static AuthData getAuth(String authToken) throws DataAccessException {
         for (AuthData data: authDb) {
-            if (data.authToken() == authToken) {
+            if (data.authToken().equals(authToken)) {
                 return data;
             }
         }

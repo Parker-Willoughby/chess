@@ -1,6 +1,7 @@
 package service;
 
 import chess.ChessGame;
+import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.GameData;
@@ -29,8 +30,8 @@ public class GameService {
     }
 
     public static void join(String authToken, JoinRequest request) throws DataAccessException {
-        GameData game = GameDAO.getGame(request.GameID());
-        String username = getAuth(authToken).username();
+        GameData game = GameDAO.getGame(request.gameID());
+        String username = AuthDAO.getAuth(authToken).username();
         if (game != null) {
             GameData newGame;
             if (request.playerColor().equals("WHITE")) {
