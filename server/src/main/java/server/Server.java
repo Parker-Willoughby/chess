@@ -22,7 +22,8 @@ public class Server {
     public int run(int desiredPort) {
         javalin
                 .start(desiredPort)
-                .post("/user", this::handleRequest);
+                .post("/user", this::handleRegister)
+                .delete("/db", this::handleClear);
         return javalin.port();
     }
 
@@ -30,10 +31,14 @@ public class Server {
         javalin.stop();
     }
 
-    public void handleRequest(Context ctx) throws DataAccessException {
+    public void handleRegister(Context ctx) throws DataAccessException {
         UserData datar = getBodyObject(ctx, UserData.class);
         RegisterResult result = UserService.register(datar);
         ctx.json(returnBodyObject(result));
+    }
+
+    public void handleClear(Context ctx) throws DataAccessException {
+        UserService.clear();
     }
 
     private static <T> T getBodyObject(Context context, Class<T> clazz) {

@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
+import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
@@ -21,6 +22,12 @@ public class UserService {
         else {
             throw new DataAccessException("Error");
         }
+    }
+
+    public static void clear() {
+        AuthDAO.clear();
+        UserDAO.clear();
+        GameDAO.clear();
     }
 
     public static String generateToken() {
