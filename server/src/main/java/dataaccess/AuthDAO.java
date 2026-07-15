@@ -17,6 +17,14 @@ public class AuthDAO {
         authDb.add(authData);
     }
 
+    public static void deleteAuth(String authToken) {
+        for (AuthData data: authDb) {
+            if (data.authToken() == authToken) {
+                authDb.remove(data);
+            }
+        }
+    }
+
     public static void clear(){
         authDb.clear();
     }

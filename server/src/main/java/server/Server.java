@@ -25,6 +25,7 @@ public class Server {
                 .start(desiredPort)
                 .post("/user", this::handleRegister)
                 .post("/session", this::handleLogin)
+                .delete("/session", this::handleLogout)
                 .delete("/db", this::handleClear);
         return javalin.port();
     }
@@ -43,6 +44,11 @@ public class Server {
         LoginRequest login = getBodyObject(ctx, LoginRequest.class);
         RegisterResult result = UserService.login(login);
         ctx.json(returnBodyObject(result));
+    }
+
+    public void handleLogout(Context ctx) throws DataAccessException {
+        String authToken = ctx.header("authorization");
+        UserService.logout(authToken);
     }
 
     public void handleClear(Context ctx) throws DataAccessException {

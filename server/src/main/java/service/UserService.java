@@ -34,6 +34,11 @@ public class UserService {
             throw new DataAccessException("Error");
         }
     }
+
+    public static void logout(String authToken) throws DataAccessException {
+        AuthDAO.deleteAuth(authToken);
+    }
+
     public static void clear() {
         AuthDAO.clear();
         UserDAO.clear();
