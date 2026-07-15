@@ -20,9 +20,9 @@ public class Server {
     }
 
     public int run(int desiredPort) {
-        javalin.create()
-                .post("/user", this::handleRequest)
-                .start(desiredPort);
+        javalin
+                .start(desiredPort)
+                .post("/user", this::handleRequest);
         return javalin.port();
     }
 
