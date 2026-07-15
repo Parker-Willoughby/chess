@@ -25,6 +25,15 @@ public class AuthDAO {
         }
     }
 
+    public static AuthData getAuth(String authToken) throws DataAccessException {
+        for (AuthData data: authDb) {
+            if (data.authToken() == authToken) {
+                return data;
+            }
+        }
+        throw new DataAccessException("Error");
+    }
+
     public static void clear(){
         authDb.clear();
     }

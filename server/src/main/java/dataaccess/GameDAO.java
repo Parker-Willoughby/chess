@@ -16,4 +16,22 @@ public class GameDAO {
     public static void clear(){
         gameDb.clear();
     }
+
+    public static GameData getGame(int gameID) throws DataAccessException {
+        for (GameData data: gameDb) {
+            if (data.gameID() == gameID) {
+                return data;
+            }
+        }
+        return null;
+    }
+
+    public static void updateGame(GameData game) {
+        for (GameData data: gameDb) {
+            if(data.gameID() == game.gameID()) {
+                gameDb.remove(data);
+                gameDb.add(game);
+            }
+        }
+    }
 }

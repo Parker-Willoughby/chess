@@ -28,6 +28,7 @@ public class Server {
                 .post("/session", this::handleLogin)
                 .post("/game", this::handleCreate)
                 .get("/game", this::handleList)
+                .put("/game", this::handleJoin)
                 .delete("/session", this::handleLogout)
                 .delete("/db", this::handleClear);
         return javalin.port();
@@ -53,12 +54,19 @@ public class Server {
         String authToken = ctx.header("authorization");
         String request = getBodyObject(ctx, String.class);
         int result = GameService.create(authToken, request);
+        ctx.json(returnBodyObject(result));
     }
 
     public void handleList(Context ctx) throws DataAccessException {
         String authToken = ctx.header("authorization");
         Collection<GameData> gamesList = GameService.list(authToken);
         ctx.json(returnBodyObject(gamesList));
+    }
+
+    public void handleJoin(Context ctx) throws DataAccessException {
+        String authToken = ctx.header("authorization");
+        JoinRequest request = getBodyObject(ctx, JoinRequest.class);
+        GameService.join(authToken, request);
     }
 
     public void handleLogout(Context ctx) throws DataAccessException {

@@ -1,11 +1,15 @@
 package service;
 
 import chess.ChessGame;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.GameData;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Random;
+
+import static dataaccess.AuthDAO.getAuth;
 
 public class GameService {
     public static Collection<GameData> list(String AuthToken) {
@@ -13,9 +17,29 @@ public class GameService {
     }
 
     public static int create(String AuthToken, String gameName) {
-        int GameID = 11111;
-        GameData datar = new GameData(GameID null, null, gameName, new ChessGame());
+        Random rand = new Random();
+        int GameID = rand.nextInt(10000);
+        GameData datar = new GameData(GameID, null, null, gameName, new ChessGame());
+        GameDAO.createGame(datar);
+        return GameID;
+    }
 
+    public static void join(String authToken, JoinRequest request) throws DataAccessException {
+        GameData game = GameDAO.getGame(request.GameID());
+        String username = getAuth(authToken).username();
+        if (game != null) {
+            GameData newGame;
+            if (request.playerColor().equals("WHITE")) {
+                newGame = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
+            }
+            else {
+                newGame = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
+            }
+            GameDAO.updateGame(newGame);
+        }
+        else {
+            throw new DataAccessException("Error");
+        }
     }
 
 }
