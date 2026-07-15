@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public class UserService {
 
-    public RegisterResult register(UserData registerRequest) throws DataAccessException {
+    public static RegisterResult register(UserData registerRequest) throws DataAccessException {
         UserData user = UserDAO.getUser(registerRequest.username());
         if (user == null) {
             UserDAO.createUser(registerRequest);
