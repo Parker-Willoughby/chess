@@ -4,10 +4,11 @@ import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import io.javalin.*;
 import io.javalin.http.Context;
+import model.GameData;
 import model.UserData;
-import service.LoginRequest;
-import service.RegisterResult;
-import service.UserService;
+import service.*;
+
+import java.util.Collection;
 
 public class Server {
 
@@ -25,6 +26,8 @@ public class Server {
                 .start(desiredPort)
                 .post("/user", this::handleRegister)
                 .post("/session", this::handleLogin)
+                .post("/game", this::handleCreate)
+                .get("/game", this::handleList)
                 .delete("/session", this::handleLogout)
                 .delete("/db", this::handleClear);
         return javalin.port();
@@ -44,6 +47,14 @@ public class Server {
         LoginRequest login = getBodyObject(ctx, LoginRequest.class);
         RegisterResult result = UserService.login(login);
         ctx.json(returnBodyObject(result));
+    }
+
+
+
+    public void handleList(Context ctx) throws DataAccessException {
+        String authToken = ctx.header("authorization");
+        Collection<GameData> gamesList = GameService.list(authToken);
+        ctx.json(returnBodyObject(gamesList));
     }
 
     public void handleLogout(Context ctx) throws DataAccessException {
