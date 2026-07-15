@@ -20,4 +20,8 @@ public class UserDAO {
     public static void createUser(UserData data) {
         users.add(data);
     }
+
+    public static void clear(){
+        users.clear();
+    }
 }

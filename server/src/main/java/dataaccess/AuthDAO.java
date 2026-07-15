@@ -16,4 +16,8 @@ public class AuthDAO {
     public static void createAuth(AuthData authData) {
         authDb.add(authData);
     }
+
+    public static void clear(){
+        authDb.clear();
+    }
 }

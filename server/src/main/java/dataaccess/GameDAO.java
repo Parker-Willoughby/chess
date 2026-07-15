@@ -9,7 +9,11 @@ import java.util.Collection;
 public class GameDAO {
     public static Collection<GameData> gameDb = new ArrayList<>();
 
-    public static void createAuth(AuthData authData) {
+    public static void createGame(GameData GameData) {
         gameDb.add(GameData);
+    }
+
+    public static void clear(){
+        gameDb.clear();
     }
 }
