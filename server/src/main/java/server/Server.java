@@ -9,6 +9,7 @@ import model.UserData;
 import service.*;
 
 import java.util.Collection;
+import java.util.Map;
 
 public class Server {
 
@@ -53,14 +54,15 @@ public class Server {
     public void handleCreate(Context ctx) throws DataAccessException {
         String authToken = ctx.header("authorization");
         CreateRequest request = getBodyObject(ctx, CreateRequest.class);
-        int result = GameService.create(authToken, request.gameName());
+        CreateResult result = GameService.create(authToken, request.gameName());
         ctx.json(returnBodyObject(result));
     }
 
     public void handleList(Context ctx) throws DataAccessException {
         String authToken = ctx.header("authorization");
         Collection<GameInfo> gamesList = GameService.list(authToken);
-        ctx.json(returnBodyObject(gamesList));
+        var bodyObject = returnBodyObject(gamesList);
+        ctx.json(new Gson().toJson(Map.of("games", gamesList)));
     }
 
     public void handleJoin(Context ctx) throws DataAccessException {

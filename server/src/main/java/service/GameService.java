@@ -21,12 +21,12 @@ public class GameService {
         return gamesList;
     }
 
-    public static int create(String AuthToken, String gameName) {
+    public static CreateResult create(String AuthToken, String gameName) {
         Random rand = new Random();
         int GameID = rand.nextInt(10000);
         GameData datar = new GameData(GameID, null, null, gameName, new ChessGame());
         GameDAO.createGame(datar);
-        return GameID;
+        return new CreateResult(GameID);
     }
 
     public static void join(String authToken, JoinRequest request) throws DataAccessException {
@@ -38,7 +38,7 @@ public class GameService {
                 newGame = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
             }
             else {
-                newGame = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
+                newGame = new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game());
             }
             GameDAO.updateGame(newGame);
         }
