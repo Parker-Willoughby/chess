@@ -12,8 +12,12 @@ import java.util.Random;
 import static dataaccess.AuthDAO.getAuth;
 
 public class GameService {
-    public static Collection<GameData> list(String AuthToken) {
-        return GameDAO.gameDb;
+    public static Collection<GameInfo> list(String AuthToken) {
+        Collection<GameInfo> gamesList = new ArrayList<>();
+        for(GameData game: GameDAO.gameDb) {
+            gamesList.add(new GameInfo(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
+        }
+        return gamesList;
     }
 
     public static int create(String AuthToken, String gameName) {

@@ -52,14 +52,14 @@ public class Server {
 
     public void handleCreate(Context ctx) throws DataAccessException {
         String authToken = ctx.header("authorization");
-        String request = getBodyObject(ctx, String.class);
-        int result = GameService.create(authToken, request);
+        CreateRequest request = getBodyObject(ctx, CreateRequest.class);
+        int result = GameService.create(authToken, request.gameName());
         ctx.json(returnBodyObject(result));
     }
 
     public void handleList(Context ctx) throws DataAccessException {
         String authToken = ctx.header("authorization");
-        Collection<GameData> gamesList = GameService.list(authToken);
+        Collection<GameInfo> gamesList = GameService.list(authToken);
         ctx.json(returnBodyObject(gamesList));
     }
 
