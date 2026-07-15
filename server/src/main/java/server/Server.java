@@ -5,6 +5,7 @@ import dataaccess.DataAccessException;
 import io.javalin.*;
 import io.javalin.http.Context;
 import model.UserData;
+import service.LoginRequest;
 import service.RegisterResult;
 import service.UserService;
 
@@ -23,6 +24,7 @@ public class Server {
         javalin
                 .start(desiredPort)
                 .post("/user", this::handleRegister)
+                .post("/session", this::handleLogin)
                 .delete("/db", this::handleClear);
         return javalin.port();
     }
@@ -34,6 +36,12 @@ public class Server {
     public void handleRegister(Context ctx) throws DataAccessException {
         UserData datar = getBodyObject(ctx, UserData.class);
         RegisterResult result = UserService.register(datar);
+        ctx.json(returnBodyObject(result));
+    }
+
+    public void handleLogin(Context ctx) throws DataAccessException {
+        LoginRequest login = getBodyObject(ctx, LoginRequest.class);
+        RegisterResult result = UserService.login(login);
         ctx.json(returnBodyObject(result));
     }
 
