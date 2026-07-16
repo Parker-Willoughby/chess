@@ -15,13 +15,13 @@ import java.util.Random;
 import static dataaccess.AuthDAO.getAuth;
 
 public class GameService {
-    public static Collection<GameInfo> list(String authToken) throws DataAccessException {
+    public static ListResult list(String authToken) throws DataAccessException {
         if (AuthDAO.getAuth(authToken) != null) {
             Collection<GameInfo> gamesList = new ArrayList<>();
             for (GameData game : GameDAO.gameDb) {
                 gamesList.add(new GameInfo(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
             }
-            return gamesList;
+            return new ListResult(gamesList);
         }
         else {
             throw new DataAccessException("Error");

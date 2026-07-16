@@ -1,4 +1,6 @@
 package service;
 
-public class ListResult {
+import java.util.Collection;
+
+public record ListResult(Collection<GameInfo> games) {
 }

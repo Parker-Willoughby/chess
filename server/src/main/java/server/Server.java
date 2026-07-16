@@ -89,9 +89,9 @@ public class Server {
     public void handleList(Context ctx) {
         try {
             String authToken = ctx.header("authorization");
-            Collection<GameInfo> gamesList = GameService.list(authToken);
-            var bodyObject = returnBodyObject(gamesList);
-            ctx.json(new Gson().toJson(Map.of("games", gamesList)));
+            ListResult gamesList = GameService.list(authToken);
+            String thingy = returnBodyObject(gamesList);
+            ctx.status(200).result(thingy);
         }
         catch (DataAccessException e) {
             ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
