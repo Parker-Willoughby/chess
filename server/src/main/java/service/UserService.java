@@ -20,6 +20,7 @@ public class UserService {
             throw new AlreadyTakenException("Error");
         }
     }
+
     public static RegisterResult login(LoginRequest loginRequest) throws DataAccessException {
         UserData user = UserDAO.getUser(loginRequest.username());
         if (user != null && user.password().equals(loginRequest.password())) {
