@@ -1,14 +1,11 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.AlreadyTakenException;
-import dataaccess.DataAccessException;
+import dataaccess.*;
 import io.javalin.*;
 import io.javalin.http.Context;
-import model.GameData;
 import model.UserData;
 import service.*;
-
 import java.util.Collection;
 import java.util.Map;
 
@@ -86,9 +83,10 @@ public class Server {
         catch (DataAccessException e) {
             ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
         }
+
     }
 
-    public void handleList(Context ctx) throws DataAccessException {
+    public void handleList(Context ctx) {
         try {
             String authToken = ctx.header("authorization");
             Collection<GameInfo> gamesList = GameService.list(authToken);
@@ -100,13 +98,26 @@ public class Server {
         }
     }
 
-    public void handleJoin(Context ctx) throws DataAccessException {
-        String authToken = ctx.header("authorization");
-        JoinRequest request = getBodyObject(ctx, JoinRequest.class);
-        GameService.join(authToken, request);
+    public void handleJoin(Context ctx) {
+        try {
+            String authToken = ctx.header("authorization");
+            JoinRequest request = getBodyObject(ctx, JoinRequest.class);
+            if (request.gameID() == 0 || request.playerColor() == null || (!request.playerColor().equals("WHITE")) && !request.playerColor().equals("BLACK")) {
+                ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
+            }
+            else {
+                GameService.join(authToken, request);
+            }
+        }
+        catch (DataAccessException e) {
+            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
+        }
+        catch (AlreadyTakenException e) {
+            ctx.status(403).result(new Gson().toJson(Map.of("message", "Error: already taken")));
+        }
     }
 
-    public void handleLogout(Context ctx) throws DataAccessException {
+    public void handleLogout(Context ctx) {
         try {
             String authToken = ctx.header("authorization");
             UserService.logout(authToken);

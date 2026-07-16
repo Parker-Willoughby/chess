@@ -1,9 +1,11 @@
 package service;
 
 import chess.ChessGame;
+import dataaccess.AlreadyTakenException;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
+import model.AuthData;
 import model.GameData;
 
 import java.util.ArrayList;
@@ -39,16 +41,20 @@ public class GameService {
         }
     }
 
-    public static void join(String authToken, JoinRequest request) throws DataAccessException {
+    public static void join(String authToken, JoinRequest request) throws DataAccessException, AlreadyTakenException {
         GameData game = GameDAO.getGame(request.gameID());
-        if (game != null && AuthDAO.getAuth(authToken) != null) {
-            String username = AuthDAO.getAuth(authToken).username();
+        AuthData authData = AuthDAO.getAuth(authToken);
+        if (game != null && authData != null) {
+            String username = authData.username();
             GameData newGame;
-            if (request.playerColor().equals("WHITE")) {
+            if (request.playerColor().equals("WHITE") && game.whiteUsername() == null) {
                 newGame = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
             }
-            else {
+            else if (request.playerColor().equals("BLACK") && game.blackUsername() == null) {
                 newGame = new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game());
+            }
+            else {
+                throw new AlreadyTakenException("Error");
             }
             GameDAO.updateGame(newGame);
         }
