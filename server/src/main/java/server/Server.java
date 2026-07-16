@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import dataaccess.AlreadyTakenException;
 import dataaccess.DataAccessException;
 import io.javalin.*;
 import io.javalin.http.Context;
@@ -39,10 +40,18 @@ public class Server {
         javalin.stop();
     }
 
-    public void handleRegister(Context ctx) throws DataAccessException {
-        UserData datar = getBodyObject(ctx, UserData.class);
-        RegisterResult result = UserService.register(datar);
-        ctx.json(returnBodyObject(result));
+    public void handleRegister(Context ctx) {
+        try {
+            UserData datar = getBodyObject(ctx, UserData.class);
+            if (datar.username() == null || datar.password() == null || datar.email() == null) {
+                ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
+            }
+            RegisterResult result = UserService.register(datar);
+            ctx.json(returnBodyObject(result));
+        }
+        catch (AlreadyTakenException e) {
+            ctx.status(403).result(new Gson().toJson(Map.of("message", "Error: username already taken")));
+        }
     }
 
     public void handleLogin(Context ctx) throws DataAccessException {

@@ -31,7 +31,7 @@ public class AuthDAO {
                 return data;
             }
         }
-        throw new DataAccessException("Error");
+        return null;
     }
 
     public static void clear(){

@@ -1,9 +1,6 @@
 package service;
 
-import dataaccess.AuthDAO;
-import dataaccess.DataAccessException;
-import dataaccess.GameDAO;
-import dataaccess.UserDAO;
+import dataaccess.*;
 import model.AuthData;
 import model.UserData;
 
@@ -11,7 +8,7 @@ import java.util.UUID;
 
 public class UserService {
 
-    public static RegisterResult register(UserData registerRequest) throws DataAccessException {
+    public static RegisterResult register(UserData registerRequest) throws AlreadyTakenException {
         UserData user = UserDAO.getUser(registerRequest.username());
         if (user == null) {
             UserDAO.createUser(registerRequest);
@@ -20,7 +17,7 @@ public class UserService {
             return new RegisterResult(registerRequest.username(), authData.authToken());
         }
         else {
-            throw new DataAccessException("Error");
+            throw new AlreadyTakenException("Error");
         }
     }
     public static RegisterResult login(LoginRequest loginRequest) throws DataAccessException {
