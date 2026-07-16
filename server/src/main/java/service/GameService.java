@@ -7,12 +7,14 @@ import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.AuthData;
 import model.GameData;
+import service.Records.CreateResult;
+import service.Records.GameInfo;
+import service.Records.JoinRequest;
+import service.Records.ListResult;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Random;
-
-import static dataaccess.AuthDAO.getAuth;
 
 public class GameService {
     public static ListResult list(String authToken) throws DataAccessException {

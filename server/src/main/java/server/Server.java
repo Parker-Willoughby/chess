@@ -6,7 +6,8 @@ import io.javalin.*;
 import io.javalin.http.Context;
 import model.UserData;
 import service.*;
-import java.util.Collection;
+import service.Records.*;
+
 import java.util.Map;
 
 public class Server {
