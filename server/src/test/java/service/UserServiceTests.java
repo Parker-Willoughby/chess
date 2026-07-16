@@ -7,8 +7,8 @@ import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import service.Records.LoginRequest;
-import service.Records.RegisterResult;
+import service.records.LoginRequest;
+import service.records.RegisterResult;
 
 public class UserServiceTests {
     @Test

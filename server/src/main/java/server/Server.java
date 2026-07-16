@@ -6,7 +6,7 @@ import io.javalin.*;
 import io.javalin.http.Context;
 import model.UserData;
 import service.*;
-import service.Records.*;
+import service.records.*;
 
 import java.util.Map;
 
@@ -103,7 +103,8 @@ public class Server {
         try {
             String authToken = ctx.header("authorization");
             JoinRequest request = getBodyObject(ctx, JoinRequest.class);
-            if (request.gameID() == 0 || request.playerColor() == null || (!request.playerColor().equals("WHITE")) && !request.playerColor().equals("BLACK")) {
+            if (request.gameID() == 0 || request.playerColor() == null
+                    || (!request.playerColor().equals("WHITE")) && !request.playerColor().equals("BLACK")) {
                 ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
             }
             else {

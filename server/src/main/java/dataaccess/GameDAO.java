@@ -9,8 +9,8 @@ import java.util.Collection;
 public class GameDAO {
     public static Collection<GameData> gameDb = new ArrayList<>();
 
-    public static void createGame(GameData GameData) {
-        gameDb.add(GameData);
+    public static void createGame(GameData gameData) {
+        gameDb.add(gameData);
     }
 
     public static void clear(){

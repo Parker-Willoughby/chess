@@ -7,10 +7,10 @@ import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.AuthData;
 import model.GameData;
-import service.Records.CreateResult;
-import service.Records.GameInfo;
-import service.Records.JoinRequest;
-import service.Records.ListResult;
+import service.records.CreateResult;
+import service.records.GameInfo;
+import service.records.JoinRequest;
+import service.records.ListResult;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,10 +33,10 @@ public class GameService {
     public static CreateResult create(String authToken, String gameName) throws DataAccessException {
         if (AuthDAO.getAuth(authToken) != null) {
             Random rand = new Random();
-            int GameID = rand.nextInt(10000);
-            GameData datar = new GameData(GameID, null, null, gameName, new ChessGame());
+            int gameID = rand.nextInt(10000);
+            GameData datar = new GameData(gameID, null, null, gameName, new ChessGame());
             GameDAO.createGame(datar);
-            return new CreateResult(GameID);
+            return new CreateResult(gameID);
         }
         else {
             throw new DataAccessException("Error");
