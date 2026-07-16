@@ -15,6 +15,7 @@ public class UserServiceTests {
         RegisterResult given = UserService.register(testUser);
         RegisterResult correct = new RegisterResult("username", given.authToken());
         Assertions.assertEquals(given, correct);
+        UserService.clear();
     }
 
     @Test
@@ -22,6 +23,7 @@ public class UserServiceTests {
         UserData testUser = new UserData("username", "password", "email");
         RegisterResult given = UserService.register(testUser);
         Assertions.assertThrows(AlreadyTakenException.class, () -> UserService.register(testUser));
+        UserService.clear();
     }
 
     @Test
@@ -37,6 +39,7 @@ public class UserServiceTests {
         catch (DataAccessException e) {
             return;
         }
+        UserService.clear();
     }
 
     @Test
@@ -45,6 +48,7 @@ public class UserServiceTests {
         UserService.register(testUser);
         LoginRequest testLogin = new LoginRequest("username", "wrong");
         Assertions.assertThrows(DataAccessException.class, () -> UserService.login(testLogin));
+        UserService.clear();
     }
 
     @Test
@@ -58,11 +62,13 @@ public class UserServiceTests {
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
+        UserService.clear();
     }
 
     @Test
     public void logoutFail() {
         Assertions.assertThrows(DataAccessException.class, () -> UserService.logout("wrong"));
+        UserService.clear();
     }
 
     @Test
