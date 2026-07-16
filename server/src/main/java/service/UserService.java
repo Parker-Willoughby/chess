@@ -33,7 +33,12 @@ public class UserService {
     }
 
     public static void logout(String authToken) throws DataAccessException {
-        AuthDAO.deleteAuth(authToken);
+        if (AuthDAO.getAuth(authToken) != null) {
+            AuthDAO.deleteAuth(authToken);
+        }
+        else {
+            throw new DataAccessException("Error");
+        }
     }
 
     public static void clear() {
@@ -43,7 +48,11 @@ public class UserService {
     }
 
     public static String generateToken() {
-        return UUID.randomUUID().toString();
+        String token = UUID.randomUUID().toString();
+        while (AuthDAO.getAuth(token) != null) {
+            token = UUID.randomUUID().toString();
+        }
+        return token;
     }
 
 }

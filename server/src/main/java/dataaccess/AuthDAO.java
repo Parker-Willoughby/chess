@@ -18,14 +18,10 @@ public class AuthDAO {
     }
 
     public static void deleteAuth(String authToken) {
-        for (AuthData data: authDb) {
-            if (data.authToken() == authToken) {
-                authDb.remove(data);
-            }
-        }
+        authDb.removeIf(data -> data.authToken().equals(authToken));
     }
 
-    public static AuthData getAuth(String authToken) throws DataAccessException {
+    public static AuthData getAuth(String authToken) {
         for (AuthData data: authDb) {
             if (data.authToken().equals(authToken)) {
                 return data;

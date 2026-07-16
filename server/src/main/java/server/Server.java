@@ -92,8 +92,13 @@ public class Server {
     }
 
     public void handleLogout(Context ctx) throws DataAccessException {
-        String authToken = ctx.header("authorization");
-        UserService.logout(authToken);
+        try {
+            String authToken = ctx.header("authorization");
+            UserService.logout(authToken);
+        }
+        catch (DataAccessException e) {
+            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
+        }
     }
 
     public void handleClear(Context ctx) throws DataAccessException {
