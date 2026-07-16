@@ -119,7 +119,8 @@ public class ChessGame {
             if(pieceMoved.getPieceType() == ChessPiece.PieceType.KING) {
                 setKingPosition(move.getEndPosition(), teamTurn);
                 setKingsRooksMoved(move.getStartPosition());
-                if (-1 > (move.getStartPosition().getColumn() - move.getEndPosition().getColumn()) || 1 < (move.getStartPosition().getColumn() - move.getEndPosition().getColumn())) {
+                if (-1 > (move.getStartPosition().getColumn() - move.getEndPosition().getColumn())
+                        || 1 < (move.getStartPosition().getColumn() - move.getEndPosition().getColumn())) {
                     makeRookCastle(move);
                 }
             }
@@ -278,26 +279,30 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         gameBoard = board;
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                setBoardHelper(board, position);
+            }
+        }
+    }
+
+    public void setBoardHelper(ChessBoard board, ChessPosition position) {
         ChessPosition startWhiteKing = new ChessPosition(1, 5);
         ChessPosition startBlackKing = new ChessPosition(8, 5);
-        for (int i = 1; i <= 8; i ++) {
-            for (int j = 1; j <= 8; j ++) {
-                ChessPosition position = new ChessPosition(i, j);
-                if (board.getPiece(position) != null) {
-                    if (board.getPiece(position).getPieceType() == ChessPiece.PieceType.KING
-                            && board.getPiece(position).getTeamColor() == TeamColor.WHITE) {
-                        setKingPosition(position, TeamColor.WHITE);
-                        if (!position.equals(startWhiteKing)) {
-                            kingsRooksMoved[2] = true;
-                        }
-                    }
-                    if (board.getPiece(position).getPieceType() == ChessPiece.PieceType.KING
-                            && board.getPiece(position).getTeamColor() == TeamColor.BLACK) {
-                        setKingPosition(position, TeamColor.BLACK);
-                        if (!position.equals(startBlackKing)) {
-                            kingsRooksMoved[5] = true;
-                        }
-                    }
+        if (board.getPiece(position) != null) {
+            if (board.getPiece(position).getPieceType() == ChessPiece.PieceType.KING
+                    && board.getPiece(position).getTeamColor() == TeamColor.WHITE) {
+                setKingPosition(position, TeamColor.WHITE);
+                if (!position.equals(startWhiteKing)) {
+                    kingsRooksMoved[2] = true;
+                }
+            }
+            if (board.getPiece(position).getPieceType() == ChessPiece.PieceType.KING
+                    && board.getPiece(position).getTeamColor() == TeamColor.BLACK) {
+                setKingPosition(position, TeamColor.BLACK);
+                if (!position.equals(startBlackKing)) {
+                    kingsRooksMoved[5] = true;
                 }
             }
         }
