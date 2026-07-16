@@ -46,18 +46,29 @@ public class Server {
             if (datar.username() == null || datar.password() == null || datar.email() == null) {
                 ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
             }
-            RegisterResult result = UserService.register(datar);
-            ctx.json(returnBodyObject(result));
+            else {
+                RegisterResult result = UserService.register(datar);
+                ctx.json(returnBodyObject(result));
+            }
         }
         catch (AlreadyTakenException e) {
             ctx.status(403).result(new Gson().toJson(Map.of("message", "Error: username already taken")));
         }
     }
 
-    public void handleLogin(Context ctx) throws DataAccessException {
-        LoginRequest login = getBodyObject(ctx, LoginRequest.class);
-        RegisterResult result = UserService.login(login);
-        ctx.json(returnBodyObject(result));
+    public void handleLogin(Context ctx) {
+        try {
+            LoginRequest login = getBodyObject(ctx, LoginRequest.class);
+            if (login.username() == null || login.password() == null) {
+                ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
+            } else {
+                RegisterResult result = UserService.login(login);
+                ctx.json(returnBodyObject(result));
+            }
+        }
+        catch (DataAccessException e) {
+            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
+        }
     }
 
     public void handleCreate(Context ctx) throws DataAccessException {

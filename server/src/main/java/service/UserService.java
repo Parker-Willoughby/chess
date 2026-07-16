@@ -22,7 +22,7 @@ public class UserService {
     }
     public static RegisterResult login(LoginRequest loginRequest) throws DataAccessException {
         UserData user = UserDAO.getUser(loginRequest.username());
-        if (user != null) {
+        if (user != null && user.password().equals(loginRequest.password())) {
             AuthData authData = new AuthData(generateToken(), loginRequest.username());
             AuthDAO.createAuth(authData);
             return new RegisterResult(loginRequest.username(), authData.authToken());
