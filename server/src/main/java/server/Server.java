@@ -71,18 +71,33 @@ public class Server {
         }
     }
 
-    public void handleCreate(Context ctx) throws DataAccessException {
-        String authToken = ctx.header("authorization");
-        CreateRequest request = getBodyObject(ctx, CreateRequest.class);
-        CreateResult result = GameService.create(authToken, request.gameName());
-        ctx.json(returnBodyObject(result));
+    public void handleCreate(Context ctx) {
+        try {
+            String authToken = ctx.header("authorization");
+            CreateRequest request = getBodyObject(ctx, CreateRequest.class);
+            if (request.gameName() == null || authToken == null) {
+                ctx.status(400).result(new Gson().toJson(Map.of("message", "Error: bad request")));
+            }
+            else {
+                CreateResult result = GameService.create(authToken, request.gameName());
+                ctx.json(returnBodyObject(result));
+            }
+        }
+        catch (DataAccessException e) {
+            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
+        }
     }
 
     public void handleList(Context ctx) throws DataAccessException {
-        String authToken = ctx.header("authorization");
-        Collection<GameInfo> gamesList = GameService.list(authToken);
-        var bodyObject = returnBodyObject(gamesList);
-        ctx.json(new Gson().toJson(Map.of("games", gamesList)));
+        try {
+            String authToken = ctx.header("authorization");
+            Collection<GameInfo> gamesList = GameService.list(authToken);
+            var bodyObject = returnBodyObject(gamesList);
+            ctx.json(new Gson().toJson(Map.of("games", gamesList)));
+        }
+        catch (DataAccessException e) {
+            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
+        }
     }
 
     public void handleJoin(Context ctx) throws DataAccessException {

@@ -13,26 +13,36 @@ import java.util.Random;
 import static dataaccess.AuthDAO.getAuth;
 
 public class GameService {
-    public static Collection<GameInfo> list(String AuthToken) {
-        Collection<GameInfo> gamesList = new ArrayList<>();
-        for(GameData game: GameDAO.gameDb) {
-            gamesList.add(new GameInfo(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
+    public static Collection<GameInfo> list(String authToken) throws DataAccessException {
+        if (AuthDAO.getAuth(authToken) != null) {
+            Collection<GameInfo> gamesList = new ArrayList<>();
+            for (GameData game : GameDAO.gameDb) {
+                gamesList.add(new GameInfo(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
+            }
+            return gamesList;
         }
-        return gamesList;
+        else {
+            throw new DataAccessException("Error");
+        }
     }
 
-    public static CreateResult create(String AuthToken, String gameName) {
-        Random rand = new Random();
-        int GameID = rand.nextInt(10000);
-        GameData datar = new GameData(GameID, null, null, gameName, new ChessGame());
-        GameDAO.createGame(datar);
-        return new CreateResult(GameID);
+    public static CreateResult create(String authToken, String gameName) throws DataAccessException {
+        if (AuthDAO.getAuth(authToken) != null) {
+            Random rand = new Random();
+            int GameID = rand.nextInt(10000);
+            GameData datar = new GameData(GameID, null, null, gameName, new ChessGame());
+            GameDAO.createGame(datar);
+            return new CreateResult(GameID);
+        }
+        else {
+            throw new DataAccessException("Error");
+        }
     }
 
     public static void join(String authToken, JoinRequest request) throws DataAccessException {
         GameData game = GameDAO.getGame(request.gameID());
-        String username = AuthDAO.getAuth(authToken).username();
-        if (game != null) {
+        if (game != null && AuthDAO.getAuth(authToken) != null) {
+            String username = AuthDAO.getAuth(authToken).username();
             GameData newGame;
             if (request.playerColor().equals("WHITE")) {
                 newGame = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
