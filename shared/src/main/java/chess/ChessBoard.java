@@ -14,8 +14,6 @@ import java.util.Objects;
 public class ChessBoard {
 
     ChessPiece[][] squares = new ChessPiece[8][8];
-    Collection<ChessPosition> occupiedWhite = new ArrayList<>();
-    Collection<ChessPosition> occupiedBlack = new ArrayList<>();
 
     public ChessBoard() {
     }
@@ -24,16 +22,6 @@ public class ChessBoard {
         for(int i = 0; i < 8; i++) {
             squares[i] = Arrays.copyOf(copy.squares[i], copy.squares[i].length);
         }
-        Collection<ChessPosition> newOccupiedWhite = new ArrayList<>();
-        Collection<ChessPosition> newOccupiedBlack = new ArrayList<>();
-        for (ChessPosition position: copy.occupiedWhite) {
-            newOccupiedWhite.add(new ChessPosition(position.getRow(), position.getColumn()));
-        }
-        for (ChessPosition position: copy.occupiedBlack) {
-            newOccupiedBlack.add(new ChessPosition(position.getRow(), position.getColumn()));
-        }
-        occupiedWhite = newOccupiedWhite;
-        occupiedBlack = newOccupiedBlack;
     }
 
     /**
@@ -43,22 +31,6 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        if (getPiece(position) != null) {
-            if(getPiece(position).getTeamColor() == ChessGame.TeamColor.WHITE){
-                occupiedWhite.remove(position);
-            }
-            else {
-                occupiedBlack.remove(position);
-            }
-        }
-        if(piece != null) {
-            if(piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-                occupiedWhite.add(position);
-            }
-            else {
-                occupiedBlack.add(position);
-            }
-        }
         squares[position.getRow()-1][position.getColumn()-1] = piece;
     }
 
@@ -103,13 +75,6 @@ public class ChessBoard {
         addPiece(new ChessPosition(1, 5), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING));
         addPiece(new ChessPosition(8, 4), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN));
         addPiece(new ChessPosition(8, 5), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING));
-    }
-
-    public Collection<ChessPosition> getOccupied(ChessGame.TeamColor team) {
-        if (team == ChessGame.TeamColor.WHITE) {
-            return occupiedWhite;
-        }
-        return occupiedBlack;
     }
 
     @Override
