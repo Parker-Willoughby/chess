@@ -26,7 +26,7 @@ public class Server {
             SQLUserDAO.configureDatabase();
         }
         catch (DataAccessException e) {
-
+            throw new RuntimeException("Error");
         }
         javalin
                 .start(desiredPort)
@@ -57,6 +57,9 @@ public class Server {
         }
         catch (AlreadyTakenException e) {
             ctx.status(403).result(new Gson().toJson(Map.of("message", "Error: username already taken")));
+        }
+        catch (DataAccessException e) {
+            ctx.status(403).result(new Gson().toJson(Map.of("message", "Error")));
         }
     }
 
@@ -131,12 +134,17 @@ public class Server {
             UserService.logout(authToken);
         }
         catch (DataAccessException e) {
-            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
+            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: bad request")));
         }
     }
 
-    public void handleClear(Context ctx) throws DataAccessException {
-        UserService.clear();
+    public void handleClear(Context ctx) {
+        try {
+            UserService.clear();
+        }
+        catch (DataAccessException e) {
+            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: clear")));
+        }
     }
 
     private static <T> T getBodyObject(Context context, Class<T> clazz) {

@@ -27,10 +27,10 @@ public class GameServiceTests {
         ListResult correct = new ListResult(correctList);
         try {
             Assertions.assertEquals(correct, GameService.list(authToken));
+            UserService.clear();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
-        UserService.clear();
     }
 
     @Test
@@ -47,10 +47,10 @@ public class GameServiceTests {
             CreateResult result = GameService.create(authToken, "game1");
             GameData game = new GameData(result.gameID(), null, null, "game1", new ChessGame());
             Assertions.assertEquals(game, GameDAO.getGame(result.gameID()));
+            UserService.clear();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
-        UserService.clear();
     }
 
     @Test
@@ -61,18 +61,19 @@ public class GameServiceTests {
     @Test
     public void joinSuccess() {
         UserData user = new UserData("username", "password", "email");
-        RegisterResult register = UserService.register(user);
-        String authToken = register.authToken();
         try {
+            RegisterResult register = UserService.register(user);
+            String authToken = register.authToken();
             CreateResult gameResult = GameService.create(authToken, "game1");
             JoinRequest request = new JoinRequest("WHITE", gameResult.gameID());
             GameService.join(authToken, request);
             GameData correctGame = new GameData(gameResult.gameID(), "username", null, "game1", new ChessGame());
             Assertions.assertEquals(correctGame, GameDAO.getGame(gameResult.gameID()));
+            UserService.clear();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
-        UserService.clear();
+
     }
 
     @Test

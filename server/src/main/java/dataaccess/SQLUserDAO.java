@@ -80,14 +80,14 @@ public class SQLUserDAO {
               `username` varchar(256) NOT NULL,
               `password` varchar(256) NOT NULL,
               `email` varchar(256) NOT NULL,
-              PRIMARY KEY (`username`),
+              PRIMARY KEY (`username`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """,
             """
             CREATE TABLE IF NOT EXISTS  auth (
               `username` varchar(256) NOT NULL,
-              `token` int NOT NULL,
-              PRIMARY KEY (`token`),
+              `token` varchar(256) NOT NULL,
+              PRIMARY KEY (`token`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """,
             """
@@ -95,10 +95,10 @@ public class SQLUserDAO {
               `id` int NOT NULL AUTO_INCREMENT,
               `whiteUsername` varchar(256),
               `blackUsername` varchar(256),
-              'gameName' varchar(256),
+              `gameName` varchar(256),
               `json` TEXT DEFAULT NULL,
               PRIMARY KEY (`id`),
-              INDEX(name)
+              INDEX(gameName)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };

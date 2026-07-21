@@ -7,16 +7,17 @@ import org.mindrot.jbcrypt.BCrypt;
 import service.records.LoginRequest;
 import service.records.RegisterResult;
 
+import javax.xml.crypto.Data;
 import java.util.UUID;
 
 public class UserService {
 
-    public static RegisterResult register(UserData registerRequest) throws AlreadyTakenException {
-        UserData user = UserDAO.getUser(registerRequest.username());
+    public static RegisterResult register(UserData registerRequest) throws AlreadyTakenException, DataAccessException {
+        UserData user = SQLUserDAO.getUser(registerRequest.username());
         if (user == null) {
             String newPassword = encryptUserPassword(registerRequest.username(), registerRequest.password());
             UserData newUser = new UserData(registerRequest.username(), newPassword, registerRequest.email());
-            UserDAO.createUser(newUser);
+            SQLUserDAO.createUser(newUser);
             AuthData authData = new AuthData(generateToken(), registerRequest.username());
             AuthDAO.createAuth(authData);
             return new RegisterResult(registerRequest.username(), authData.authToken());
@@ -27,7 +28,7 @@ public class UserService {
     }
 
     public static RegisterResult login(LoginRequest loginRequest) throws DataAccessException {
-        UserData user = UserDAO.getUser(loginRequest.username());
+        UserData user = SQLUserDAO.getUser(loginRequest.username());
         if (user != null && BCrypt.checkpw(loginRequest.password(), user.password())) {
             AuthData authData = new AuthData(generateToken(), loginRequest.username());
             AuthDAO.createAuth(authData);
@@ -47,9 +48,9 @@ public class UserService {
         }
     }
 
-    public static void clear() {
+    public static void clear() throws DataAccessException {
         AuthDAO.clear();
-        UserDAO.clear();
+        SQLUserDAO.clear();
         GameDAO.clear();
     }
 

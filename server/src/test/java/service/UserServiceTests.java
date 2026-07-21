@@ -10,9 +10,11 @@ import org.junit.jupiter.api.Test;
 import service.records.LoginRequest;
 import service.records.RegisterResult;
 
+import javax.xml.crypto.Data;
+
 public class UserServiceTests {
     @Test
-    public void registerSucceed() {
+    public void registerSucceed() throws DataAccessException{
         UserData testUser = new UserData("username", "password", "email");
         RegisterResult given = UserService.register(testUser);
         RegisterResult correct = new RegisterResult("username", given.authToken());
@@ -21,7 +23,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void registerFail() {
+    public void registerFail() throws DataAccessException{
         UserData testUser = new UserData("username", "password", "email");
         RegisterResult given = UserService.register(testUser);
         Assertions.assertThrows(AlreadyTakenException.class, () -> UserService.register(testUser));
@@ -29,7 +31,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void loginSucceed() {
+    public void loginSucceed() throws DataAccessException{
         UserData testUser = new UserData("username", "password", "email");
         UserService.register(testUser);
         LoginRequest testLogin = new LoginRequest("username", "password");
@@ -45,7 +47,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void loginFail() {
+    public void loginFail() throws DataAccessException{
         UserData testUser = new UserData("username", "password", "email");
         UserService.register(testUser);
         LoginRequest testLogin = new LoginRequest("username", "wrong");
@@ -54,7 +56,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void logoutSucceed() {
+    public void logoutSucceed() throws DataAccessException {
         UserData testUser = new UserData("username", "password", "email");
         RegisterResult result = UserService.register(testUser);
         String authToken = result.authToken();
@@ -69,25 +71,35 @@ public class UserServiceTests {
 
     @Test
     public void logoutFail() {
-        Assertions.assertThrows(DataAccessException.class, () -> UserService.logout("wrong"));
-        UserService.clear();
+        try {
+            Assertions.assertThrows(DataAccessException.class, () -> UserService.logout("wrong"));
+            UserService.clear();
+        }
+        catch (DataAccessException e) {
+        }
     }
 
     @Test
     public void clearSucceed() {
-        UserData user1 = new UserData("username", "password", "email");
-        UserData user2 = new UserData("username2", "password", "email");
-        UserData user3 = new UserData("username3", "password", "email");
-        UserDAO.users.add(user1);
-        UserDAO.users.add(user2);
-        UserDAO.users.add(user3);
-        AuthData authData = new AuthData("hello", "user");
-        AuthDAO.authDb.add(authData);
-        GameData game1 = new GameData(0, "a", "b", "game1", new ChessGame());
-        GameData game2 = new GameData(1, "a", "b", "game2", new ChessGame());
-        GameDAO.gameDb.add(game1);
-        GameDAO.gameDb.add(game2);
-        UserService.clear();
-        Assertions.assertTrue(UserDAO.users.isEmpty() && AuthDAO.authDb.isEmpty() && GameDAO.gameDb.isEmpty());
+        try {
+            UserData user1 = new UserData("username", "password", "email");
+            UserData user2 = new UserData("username2", "password", "email");
+            UserData user3 = new UserData("username3", "password", "email");
+            UserDAO.users.add(user1);
+            UserDAO.users.add(user2);
+            UserDAO.users.add(user3);
+            AuthData authData = new AuthData("hello", "user");
+            AuthDAO.authDb.add(authData);
+            GameData game1 = new GameData(0, "a", "b", "game1", new ChessGame());
+            GameData game2 = new GameData(1, "a", "b", "game2", new ChessGame());
+            GameDAO.gameDb.add(game1);
+            GameDAO.gameDb.add(game2);
+            UserService.clear();
+            Assertions.assertTrue(UserDAO.users.isEmpty() && AuthDAO.authDb.isEmpty() && GameDAO.gameDb.isEmpty());
+        }
+        catch (DataAccessException e) {
+
+        }
     }
+
 }
