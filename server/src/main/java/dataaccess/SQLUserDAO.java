@@ -15,7 +15,7 @@ public class SQLUserDAO {
 
     public static void createUser(UserData data) throws DataAccessException {
         var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
-        int id = executeUpdate(statement, data.username(), data.password(), data.email());
+        executeUpdate(statement, data.username(), data.password(), data.email());
     }
 
     public static UserData getUser(String username) throws DataAccessException {
@@ -51,7 +51,7 @@ public class SQLUserDAO {
         executeUpdate(statement3);
     }
 
-    private static int executeUpdate(String statement, Object... params) throws DataAccessException{
+    public static int executeUpdate(String statement, Object... params) throws DataAccessException{
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (int i = 0; i < params.length; i++) {
