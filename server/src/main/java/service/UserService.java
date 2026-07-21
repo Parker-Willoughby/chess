@@ -50,7 +50,6 @@ public class UserService {
 
     public static void clear() throws DataAccessException {
         SQLUserDAO.clear();
-        GameDAO.clear();
     }
 
     public static String generateToken() throws DataAccessException{

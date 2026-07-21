@@ -4,10 +4,7 @@ import chess.ChessGame;
 import dataaccess.*;
 import model.AuthData;
 import model.GameData;
-import service.records.CreateResult;
-import service.records.GameInfo;
-import service.records.JoinRequest;
-import service.records.ListResult;
+import service.records.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,11 +13,7 @@ import java.util.Random;
 public class GameService {
     public static ListResult list(String authToken) throws DataAccessException {
         if (SQLAuthDAO.getAuth(authToken) != null) {
-            Collection<GameInfo> gamesList = new ArrayList<>();
-            for (GameData game : GameDAO.gameDb) {
-                gamesList.add(new GameInfo(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
-            }
-            return new ListResult(gamesList);
+            return SQLGameDAO.listGames();
         }
         else {
             throw new DataAccessException("Error");
@@ -29,10 +22,8 @@ public class GameService {
 
     public static CreateResult create(String authToken, String gameName) throws DataAccessException {
         if (SQLAuthDAO.getAuth(authToken) != null) {
-            Random rand = new Random();
-            int gameID = rand.nextInt(10000);
-            GameData datar = new GameData(gameID, null, null, gameName, new ChessGame());
-            GameDAO.createGame(datar);
+            GameCreate datar = new GameCreate(null, null, gameName, new ChessGame());
+            int gameID = SQLGameDAO.createGame(datar);
             return new CreateResult(gameID);
         }
         else {
@@ -41,7 +32,7 @@ public class GameService {
     }
 
     public static void join(String authToken, JoinRequest request) throws DataAccessException, AlreadyTakenException {
-        GameData game = GameDAO.getGame(request.gameID());
+        GameData game = SQLGameDAO.getGame(request.gameID());
         AuthData authData = SQLAuthDAO.getAuth(authToken);
         if (game != null && authData != null) {
             String username = authData.username();
@@ -55,7 +46,7 @@ public class GameService {
             else {
                 throw new AlreadyTakenException("Error");
             }
-            GameDAO.updateGame(newGame);
+            SQLGameDAO.updateGame(newGame);
         }
         else {
             throw new DataAccessException("Error");
