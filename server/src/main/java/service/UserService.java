@@ -27,7 +27,7 @@ public class UserService {
         }
     }
 
-    public static RegisterResult login(LoginRequest loginRequest) throws DataAccessException {
+    public static RegisterResult login(LoginRequest loginRequest) throws DataAccessException, UnauthorizedException {
         UserData user = SQLUserDAO.getUser(loginRequest.username());
         if (user != null && BCrypt.checkpw(loginRequest.password(), user.password())) {
             AuthData authData = new AuthData(generateToken(), loginRequest.username());
@@ -35,16 +35,16 @@ public class UserService {
             return new RegisterResult(loginRequest.username(), authData.authToken());
         }
         else {
-            throw new DataAccessException("Error");
+            throw new UnauthorizedException("Error");
         }
     }
 
-    public static void logout(String authToken) throws DataAccessException {
+    public static void logout(String authToken) throws UnauthorizedException, DataAccessException {
         if (SQLAuthDAO.getAuth(authToken) != null) {
             SQLAuthDAO.deleteAuth(authToken);
         }
         else {
-            throw new DataAccessException("Error");
+            throw new UnauthorizedException("Error");
         }
     }
 

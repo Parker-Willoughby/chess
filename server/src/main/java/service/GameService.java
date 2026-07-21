@@ -11,27 +11,27 @@ import java.util.Collection;
 import java.util.Random;
 
 public class GameService {
-    public static ListResult list(String authToken) throws DataAccessException {
+    public static ListResult list(String authToken) throws DataAccessException, UnauthorizedException {
         if (SQLAuthDAO.getAuth(authToken) != null) {
             return SQLGameDAO.listGames();
         }
         else {
-            throw new DataAccessException("Error");
+            throw new UnauthorizedException("Error");
         }
     }
 
-    public static CreateResult create(String authToken, String gameName) throws DataAccessException {
+    public static CreateResult create(String authToken, String gameName) throws DataAccessException, UnauthorizedException {
         if (SQLAuthDAO.getAuth(authToken) != null) {
             GameCreate datar = new GameCreate(null, null, gameName, new ChessGame());
             int gameID = SQLGameDAO.createGame(datar);
             return new CreateResult(gameID);
         }
         else {
-            throw new DataAccessException("Error");
+            throw new UnauthorizedException("Error");
         }
     }
 
-    public static void join(String authToken, JoinRequest request) throws DataAccessException, AlreadyTakenException {
+    public static void join(String authToken, JoinRequest request) throws DataAccessException, AlreadyTakenException, UnauthorizedException {
         GameData game = SQLGameDAO.getGame(request.gameID());
         AuthData authData = SQLAuthDAO.getAuth(authToken);
         if (game != null && authData != null) {
@@ -49,7 +49,7 @@ public class GameService {
             SQLGameDAO.updateGame(newGame);
         }
         else {
-            throw new DataAccessException("Error");
+            throw new UnauthorizedException("Error");
         }
     }
 

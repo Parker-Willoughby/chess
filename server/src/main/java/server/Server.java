@@ -8,6 +8,7 @@ import model.UserData;
 import service.*;
 import service.records.*;
 
+import javax.xml.crypto.Data;
 import java.util.Map;
 
 public class Server {
@@ -59,7 +60,7 @@ public class Server {
             ctx.status(403).result(new Gson().toJson(Map.of("message", "Error: username already taken")));
         }
         catch (DataAccessException e) {
-            ctx.status(403).result(new Gson().toJson(Map.of("message", "Error")));
+            ctx.status(500).result(new Gson().toJson(Map.of("message", "Error: internal error")));
         }
     }
 
@@ -73,8 +74,11 @@ public class Server {
                 ctx.json(returnBodyObject(result));
             }
         }
-        catch (DataAccessException e) {
+        catch (UnauthorizedException e) {
             ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
+        }
+        catch (DataAccessException e) {
+            ctx.status(500).result(new Gson().toJson(Map.of("message", "Error: Internal Error")));
         }
     }
 
@@ -90,8 +94,11 @@ public class Server {
                 ctx.json(returnBodyObject(result));
             }
         }
-        catch (DataAccessException e) {
+        catch (UnauthorizedException e) {
             ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
+        }
+        catch (DataAccessException e) {
+            ctx.status(500).result(new Gson().toJson(Map.of("message", "Error: Internal Error")));
         }
 
     }
@@ -103,8 +110,11 @@ public class Server {
             String thingy = returnBodyObject(gamesList);
             ctx.status(200).result(thingy);
         }
-        catch (DataAccessException e) {
+        catch (UnauthorizedException e) {
             ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
+        }
+        catch (DataAccessException e) {
+            ctx.status(500).result(new Gson().toJson(Map.of("message", "Error: Internal Error")));
         }
     }
 
@@ -120,11 +130,14 @@ public class Server {
                 GameService.join(authToken, request);
             }
         }
-        catch (DataAccessException e) {
+        catch (UnauthorizedException e) {
             ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: unauthorized")));
         }
         catch (AlreadyTakenException e) {
             ctx.status(403).result(new Gson().toJson(Map.of("message", "Error: already taken")));
+        }
+        catch (DataAccessException e) {
+            ctx.status(500).result(new Gson().toJson(Map.of("message", "Error: Internal Error")));
         }
     }
 
@@ -133,8 +146,11 @@ public class Server {
             String authToken = ctx.header("authorization");
             UserService.logout(authToken);
         }
-        catch (DataAccessException e) {
+        catch (UnauthorizedException e) {
             ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: bad request")));
+        }
+        catch (DataAccessException e) {
+            ctx.status(500).result(new Gson().toJson(Map.of("message", "Error: Internal Error")));
         }
     }
 
@@ -143,7 +159,7 @@ public class Server {
             UserService.clear();
         }
         catch (DataAccessException e) {
-            ctx.status(401).result(new Gson().toJson(Map.of("message", "Error: clear")));
+            ctx.status(500).result(new Gson().toJson(Map.of("message", "Error: Internal Error")));
         }
     }
 
