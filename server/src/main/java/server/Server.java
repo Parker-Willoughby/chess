@@ -22,6 +22,12 @@ public class Server {
     }
 
     public int run(int desiredPort) {
+        try {
+            SQLUserDAO.configureDatabase();
+        }
+        catch (DataAccessException e) {
+
+        }
         javalin
                 .start(desiredPort)
                 .post("/user", this::handleRegister)

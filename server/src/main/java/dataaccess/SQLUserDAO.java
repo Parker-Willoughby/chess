@@ -2,7 +2,6 @@ package dataaccess;
 
 import com.google.gson.Gson;
 import model.UserData;
-import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.PreparedStatement;
 
@@ -43,6 +42,15 @@ public class SQLUserDAO {
         return new UserData(username, password, email);
     }
 
+    public static void clear() throws DataAccessException {
+        var statement1 = "TRUNCATE user";
+        executeUpdate(statement1);
+        var statement2 = "TRUNCATE auth";
+        executeUpdate(statement2);
+        var statement3 = "TRUNCATE game";
+        executeUpdate(statement3);
+    }
+
     private static int executeUpdate(String statement, Object... params) throws DataAccessException{
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
@@ -77,17 +85,27 @@ public class SQLUserDAO {
             """,
             """
             CREATE TABLE IF NOT EXISTS  auth (
-              `id` int NOT NULL AUTO_INCREMENT,
               `username` varchar(256) NOT NULL,
               `token` int NOT NULL,
+              PRIMARY KEY (`token`),
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS  game (
+              `id` int NOT NULL AUTO_INCREMENT,
+              `whiteUsername` varchar(256),
+              `blackUsername` varchar(256),
+              'gameName' varchar(256),
+              `json` TEXT DEFAULT NULL,
               PRIMARY KEY (`id`),
-              INDEX(username)
+              INDEX(name)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };
 
 
-    private static void configureDatabase() throws DataAccessException {
+
+    public static void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try (Connection conn = DatabaseManager.getConnection()) {
             for (String statement : createStatements) {
