@@ -260,13 +260,15 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        Collection<ChessPosition> currentOccupied = new ArrayList<>();
-        for (ChessPosition position: gameBoard.getOccupied(teamColor)) {
-            currentOccupied.add(new ChessPosition(position.getRow(), position.getColumn()));
-        }
-        for (ChessPosition position: currentOccupied){
-            if (isInCheck(teamColor) || !validMoves(position).isEmpty()) {
-                return false;
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <=8; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                if (isInCheck(teamColor)
+                        || (gameBoard.getPiece(position) != null
+                        && gameBoard.getPiece(position).getTeamColor() == teamColor
+                        && !validMoves(position).isEmpty())) {
+                    return false;
+                }
             }
         }
         return true;
