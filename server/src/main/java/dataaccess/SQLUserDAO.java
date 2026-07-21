@@ -19,11 +19,11 @@ public class SQLUserDAO {
         int id = executeUpdate(statement, data.username(), data.password(), data.email());
     }
 
-    public static UserData getUser(int id) throws DataAccessException {
+    public static UserData getUser(String username) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT id, json FROM pet WHERE id=?";
+            var statement = "SELECT * FROM user WHERE username = ?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                ps.setInt(1, id);
+                ps.setString(1, username);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         return readUser(rs);
@@ -37,10 +37,10 @@ public class SQLUserDAO {
     }
 
     private static UserData readUser(ResultSet rs) throws SQLException {
-        var id = rs.getInt("id");
-        var json = rs.getString("json");
-        UserData user = new Gson().fromJson(json, UserData.class);
-        return user.setId(id);
+        var username = rs.getString("username");
+        var password = rs.getString("password");
+        var email = rs.getString("email");
+        return new UserData(username, password, email);
     }
 
     private static int executeUpdate(String statement, Object... params) throws DataAccessException{
@@ -69,12 +69,10 @@ public class SQLUserDAO {
     private static final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS  user (
-              `id` int NOT NULL AUTO_INCREMENT,
               `username` varchar(256) NOT NULL,
               `password` varchar(256) NOT NULL,
               `email` varchar(256) NOT NULL,
-              PRIMARY KEY (`id`),
-              INDEX(username)
+              PRIMARY KEY (`username`),
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """,
             """
