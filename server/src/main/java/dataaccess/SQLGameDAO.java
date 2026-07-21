@@ -16,16 +16,16 @@ import static dataaccess.SQLUserDAO.executeUpdate;
 
 public class SQLGameDAO {
     public static int createGame(GameData game) throws DataAccessException {
-        var statement = "INSERT INTO game (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?)";
+        var statement = "INSERT INTO game (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
         String json = new Gson().toJson(game.game());
-        int id = executeUpdate(statement, game.whiteUsername(), game.blackUsername(), game.gameName(), game.game());
+        int id = executeUpdate(statement, game.whiteUsername(), game.blackUsername(), game.gameName(), json);
         return id;
     }
 
     public ListResult listGames() throws DataAccessException {
         Collection<GameInfo> result = new ArrayList<>();
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT id, json FROM pet";
+            var statement = "SELECT * FROM game";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
@@ -41,15 +41,9 @@ public class SQLGameDAO {
 
     public static void updateGame(GameData game) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT id FROM game WHERE id=?";
-            try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                ps.setInt(1, game.gameID());
-                try (ResultSet rs = ps.executeQuery()) {
-                    var statement2 = "INSERT INTO game (id, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?)";
-                    String json = new Gson().toJson(game.game());
-                    int id = executeUpdate(statement2, game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), game.game());
-                }
-            }
+                var statement2 = "UPDATE game SET whiteUsername=?, blackUsername=?, gameName=?, game=? WHERE id=?";
+                String json = new Gson().toJson(game.game());
+                executeUpdate(statement2, game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), json);
         } catch (Exception e) {
             throw new DataAccessException("Error");
         }
