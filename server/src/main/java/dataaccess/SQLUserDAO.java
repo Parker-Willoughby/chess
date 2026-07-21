@@ -51,7 +51,7 @@ public class SQLUserDAO {
         executeUpdate(statement3);
     }
 
-    public static int executeUpdate(String statement, Object... params) throws DataAccessException{
+    public static int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (int i = 0; i < params.length; i++) {
@@ -104,7 +104,6 @@ public class SQLUserDAO {
     };
 
 
-
     public static void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try (Connection conn = DatabaseManager.getConnection()) {
@@ -116,6 +115,37 @@ public class SQLUserDAO {
         } catch (SQLException ex) {
             throw new DataAccessException("Error");
         }
+    }
+
+    public static Boolean isEmpty() throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement1 = "SELECT EXISTS (SELECT 1 FROM user)";
+            var statement2 = "SELECT EXISTS (SELECT 1 FROM auth)";
+            var statement3 = "SELECT EXISTS (SELECT 1 FROM game)";
+            try {
+                PreparedStatement ps1 = conn.prepareStatement(statement1);
+                PreparedStatement ps2 = conn.prepareStatement(statement2);
+                PreparedStatement ps3 = conn.prepareStatement(statement3);
+                ResultSet result1 = ps1.executeQuery();
+                ResultSet result2 = ps2.executeQuery();
+                ResultSet result3 = ps3.executeQuery();
+
+                result1.next();
+                result2.next();
+                result3.next();
+
+                if (result1.getBoolean(1) || result2.getBoolean(1) || result3.getBoolean(1)) {
+                    return false;
+                }
+
+            } catch (Exception e) {
+                throw new DataAccessException("Error");
+            }
+        }
+        catch (Exception e) {
+            throw new DataAccessException("Error");
+        }
+        return true;
     }
 }
 
