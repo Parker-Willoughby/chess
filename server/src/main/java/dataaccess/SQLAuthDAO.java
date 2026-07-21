@@ -13,7 +13,7 @@ import static dataaccess.SQLUserDAO.executeUpdate;
 public class SQLAuthDAO {
 
     public static void createAuth(AuthData data) throws DataAccessException {
-        var statement = "INSERT INTO auth (username, token) VALUES (?, ?, ?)";
+        var statement = "INSERT INTO auth (username, token) VALUES (?, ?)";
         executeUpdate(statement, data.username(), data.authToken());
     }
 

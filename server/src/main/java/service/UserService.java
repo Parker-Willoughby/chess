@@ -19,7 +19,7 @@ public class UserService {
             UserData newUser = new UserData(registerRequest.username(), newPassword, registerRequest.email());
             SQLUserDAO.createUser(newUser);
             AuthData authData = new AuthData(generateToken(), registerRequest.username());
-            AuthDAO.createAuth(authData);
+            SQLAuthDAO.createAuth(authData);
             return new RegisterResult(registerRequest.username(), authData.authToken());
         }
         else {
@@ -31,7 +31,7 @@ public class UserService {
         UserData user = SQLUserDAO.getUser(loginRequest.username());
         if (user != null && BCrypt.checkpw(loginRequest.password(), user.password())) {
             AuthData authData = new AuthData(generateToken(), loginRequest.username());
-            AuthDAO.createAuth(authData);
+            SQLAuthDAO.createAuth(authData);
             return new RegisterResult(loginRequest.username(), authData.authToken());
         }
         else {
@@ -40,8 +40,8 @@ public class UserService {
     }
 
     public static void logout(String authToken) throws DataAccessException {
-        if (AuthDAO.getAuth(authToken) != null) {
-            AuthDAO.deleteAuth(authToken);
+        if (SQLAuthDAO.getAuth(authToken) != null) {
+            SQLAuthDAO.deleteAuth(authToken);
         }
         else {
             throw new DataAccessException("Error");
@@ -49,14 +49,13 @@ public class UserService {
     }
 
     public static void clear() throws DataAccessException {
-        AuthDAO.clear();
         SQLUserDAO.clear();
         GameDAO.clear();
     }
 
-    public static String generateToken() {
+    public static String generateToken() throws DataAccessException{
         String token = UUID.randomUUID().toString();
-        while (AuthDAO.getAuth(token) != null) {
+        while (SQLAuthDAO.getAuth(token) != null) {
             token = UUID.randomUUID().toString();
         }
         return token;

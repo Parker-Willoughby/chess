@@ -1,10 +1,7 @@
 package service;
 
 import chess.ChessGame;
-import dataaccess.AlreadyTakenException;
-import dataaccess.AuthDAO;
-import dataaccess.DataAccessException;
-import dataaccess.GameDAO;
+import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import service.records.CreateResult;
@@ -18,7 +15,7 @@ import java.util.Random;
 
 public class GameService {
     public static ListResult list(String authToken) throws DataAccessException {
-        if (AuthDAO.getAuth(authToken) != null) {
+        if (SQLAuthDAO.getAuth(authToken) != null) {
             Collection<GameInfo> gamesList = new ArrayList<>();
             for (GameData game : GameDAO.gameDb) {
                 gamesList.add(new GameInfo(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
@@ -31,7 +28,7 @@ public class GameService {
     }
 
     public static CreateResult create(String authToken, String gameName) throws DataAccessException {
-        if (AuthDAO.getAuth(authToken) != null) {
+        if (SQLAuthDAO.getAuth(authToken) != null) {
             Random rand = new Random();
             int gameID = rand.nextInt(10000);
             GameData datar = new GameData(gameID, null, null, gameName, new ChessGame());
@@ -45,7 +42,7 @@ public class GameService {
 
     public static void join(String authToken, JoinRequest request) throws DataAccessException, AlreadyTakenException {
         GameData game = GameDAO.getGame(request.gameID());
-        AuthData authData = AuthDAO.getAuth(authToken);
+        AuthData authData = SQLAuthDAO.getAuth(authToken);
         if (game != null && authData != null) {
             String username = authData.username();
             GameData newGame;
