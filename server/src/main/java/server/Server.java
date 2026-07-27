@@ -5,9 +5,9 @@ import dataaccess.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 import model.UserData;
+import records.*;
 import service.*;
-import service.records.*;
-import javax.xml.crypto.Data;
+
 import java.util.Map;
 
 public class Server {

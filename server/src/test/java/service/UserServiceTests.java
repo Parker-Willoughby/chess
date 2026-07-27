@@ -1,18 +1,11 @@
 package service;
 
-import chess.ChessGame;
 import dataaccess.*;
-import model.AuthData;
-import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import service.records.LoginRequest;
-import service.records.RegisterResult;
-
-import javax.xml.crypto.Data;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+import records.LoginRequest;
+import records.RegisterResult;
 
 public class UserServiceTests {
 

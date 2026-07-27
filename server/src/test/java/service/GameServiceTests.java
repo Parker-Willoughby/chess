@@ -7,7 +7,7 @@ import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import service.records.*;
+import records.*;
 
 import java.util.ArrayList;
 import java.util.Collection;

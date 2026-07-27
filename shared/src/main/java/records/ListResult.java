@@ -1,4 +1,4 @@
-package service.records;
+package records;
 
 import java.util.Collection;
 

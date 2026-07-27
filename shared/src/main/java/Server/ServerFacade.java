@@ -1,8 +1,13 @@
-package server;
+package Server;
 
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import model.*;
+import records.CreateRequest;
+import records.CreateResult;
+import records.LoginRequest;
+import records.RegisterResult;
 
 import java.net.*;
 import java.net.http.*;
@@ -18,13 +23,25 @@ public class ServerFacade {
         serverUrl = url;
     }
 
-    public Pet addPet(Pet pet) throws ResponseException {
-        var request = buildRequest("POST", "/pet", pet);
+    public RegisterResult register(UserData user) throws InvalidMoveException {
+        var request = buildRequest("POST", "/user", user);
         var response = sendRequest(request);
-        return handleResponse(response, Pet.class);
+        return handleResponse(response, RegisterResult.class);
     }
 
-    public void deletePet(int id) throws ResponseException {
+    public RegisterResult register(LoginRequest login) throws InvalidMoveException {
+        var request = buildRequest("POST", "/session", login);
+        var response = sendRequest(request);
+        return handleResponse(response, RegisterResult.class);
+    }
+
+    public CreateResult create(CreateRequest create) throws InvalidMoveException {
+        var request = buildRequest("POST", "/game", create);
+        var response = sendRequest(request);
+        return handleResponse(response, CreateResult.class);
+    }
+
+    public void deletePet(int id) throws InvalidMoveException {
         var path = String.format("/pet/%s", id);
         var request = buildRequest("DELETE", path, null);
         var response = sendRequest(request);

@@ -4,11 +4,10 @@ import chess.ChessGame;
 import dataaccess.*;
 import model.AuthData;
 import model.GameData;
-import service.records.*;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Random;
+import records.CreateResult;
+import records.GameCreate;
+import records.JoinRequest;
+import records.ListResult;
 
 public class GameService {
     public static ListResult list(String authToken) throws DataAccessException, UnauthorizedException {

@@ -4,10 +4,9 @@ import dataaccess.*;
 import model.AuthData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
-import service.records.LoginRequest;
-import service.records.RegisterResult;
+import records.LoginRequest;
+import records.RegisterResult;
 
-import javax.xml.crypto.Data;
 import java.util.UUID;
 
 public class UserService {
