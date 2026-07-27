@@ -2,12 +2,8 @@ package Server;
 
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
-import exception.ResponseException;
 import model.*;
-import records.CreateRequest;
-import records.CreateResult;
-import records.LoginRequest;
-import records.RegisterResult;
+import records.*;
 
 import java.net.*;
 import java.net.http.*;
@@ -41,22 +37,28 @@ public class ServerFacade {
         return handleResponse(response, CreateResult.class);
     }
 
-    public void deletePet(int id) throws InvalidMoveException {
-        var path = String.format("/pet/%s", id);
-        var request = buildRequest("DELETE", path, null);
+    public ListResult list() throws InvalidMoveException {
+        var request = buildRequest("GET", "/game", null);
+        var response = sendRequest(request);
+        return handleResponse(response, ListResult.class);
+    }
+
+    public void join(JoinRequest join) throws InvalidMoveException {
+        var request = buildRequest("PUT", "/game", join);
         var response = sendRequest(request);
         handleResponse(response, null);
     }
 
-    public void deleteAllPets() throws ResponseException {
-        var request = buildRequest("DELETE", "/pet", null);
-        sendRequest(request);
+    public void logout() throws InvalidMoveException {
+        //var path = String.format("/pet/%s", id);
+        var request = buildRequest("DELETE", "/session", null);
+        var response = sendRequest(request);
+        handleResponse(response, null);
     }
 
-    public PetList listPets() throws ResponseException {
-        var request = buildRequest("GET", "/pet", null);
-        var response = sendRequest(request);
-        return handleResponse(response, PetList.class);
+    public void clear() throws InvalidMoveException {
+        var request = buildRequest("DELETE", "/db", null);
+        sendRequest(request);
     }
 
     private HttpRequest buildRequest(String method, String path, Object body) {
@@ -77,23 +79,23 @@ public class ServerFacade {
         }
     }
 
-    private HttpResponse<String> sendRequest(HttpRequest request) throws ResponseException {
+    private HttpResponse<String> sendRequest(HttpRequest request) throws InvalidMoveException {
         try {
             return client.send(request, BodyHandlers.ofString());
         } catch (Exception ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+            throw new InvalidMoveException("Error");
         }
     }
 
-    private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws ResponseException {
+    private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws InvalidMoveException {
         var status = response.statusCode();
         if (!isSuccessful(status)) {
             var body = response.body();
             if (body != null) {
-                throw ResponseException.fromJson(body);
+                throw new InvalidMoveException("Error");
             }
 
-            throw new ResponseException(ResponseException.fromHttpStatusCode(status), "other failure: " + status);
+            throw new InvalidMoveException("Error");
         }
 
         if (responseClass != null) {
