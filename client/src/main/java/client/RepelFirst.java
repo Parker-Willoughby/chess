@@ -64,6 +64,10 @@ public class RepelFirst {
                 case "help" -> help();
                 case "login" -> login(params);
                 case "register" -> register(params);
+                case "list" -> list();
+                case "create" -> createGame();
+                case "join" -> playGame();
+                case "logout" -> logout();
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -109,7 +113,7 @@ public class RepelFirst {
             CreateResult created = server.create(new CreateRequest(params[0]));
             return String.format("Game is created with id = %s", created.gameID());
         }
-        throw new InvalidMoveException("Error");
+        throw new InvalidMoveException("Error not enough arguments");
     }
 
     public String playGame(String... params) throws InvalidMoveException {
