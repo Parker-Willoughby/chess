@@ -7,6 +7,7 @@ import java.util.Scanner;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import model.*;
+import records.*;
 import records.GameInfo;
 import records.ListResult;
 
@@ -74,22 +75,21 @@ public class RepelFirst {
     public String login(String... params) throws InvalidMoveException {
         if (params.length >= 1) {
             state = State.SIGNEDIN;
-            visitorName = String.join("-", params);
-            return String.format("You signed in as %s.", visitorName);
+            visitorName = params[0];
+            server.login(new LoginRequest(params[0], params[1]));
+            return String.format("You are logged in as %s.", visitorName);
         }
         throw new InvalidMoveException("Error");
     }
 
     public String register(String... params) throws InvalidMoveException {
-        assertSignedIn();
-        if (params.length >= 2) {
-            String name = params[0];
-            PetType type = PetType.valueOf(params[1].toUpperCase());
-            var pet = new Pet(0, name, type);
-            pet = server.addPet(pet);
-            return String.format("You rescued %s. Assigned ID: %d", pet.name(), pet.id());
+        if (params.length >= 1) {
+            state = State.SIGNEDIN;
+            visitorName = params[0];
+            server.register(new UserData(params[0], params[1], params[2]));
+            return String.format("%s is registered.", visitorName);
         }
-        throw new ResponseException(ResponseException.Code.ClientError, "Expected: <name> <CAT|DOG|FROG>");
+        throw new InvalidMoveException("Error");
     }
 
     public String list() throws InvalidMoveException {
@@ -165,9 +165,9 @@ public class RepelFirst {
                 """;
     }
 
-    private void assertSignedIn() throws ResponseException {
+    private void assertSignedIn() throws InvalidMoveException {
         if (state == State.SIGNEDOUT) {
-            throw new ResponseException(ResponseException.Code.ClientError, "You must sign in");
+            throw new InvalidMoveException("You must sign in");
         }
     }
 }
