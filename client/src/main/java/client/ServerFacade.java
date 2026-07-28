@@ -1,4 +1,4 @@
-package Server;
+package client;
 
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
