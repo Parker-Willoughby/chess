@@ -7,6 +7,8 @@ import java.util.Scanner;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import model.*;
+import records.GameInfo;
+import records.ListResult;
 
 import static java.awt.Color.BLUE;
 import static java.awt.Color.GREEN;
@@ -90,13 +92,13 @@ public class RepelFirst {
         throw new ResponseException(ResponseException.Code.ClientError, "Expected: <name> <CAT|DOG|FROG>");
     }
 
-    public String listPets() throws ResponseException {
+    public String list() throws InvalidMoveException {
         assertSignedIn();
-        PetList pets = server.listPets();
+        ListResult games = server.list();
         var result = new StringBuilder();
         var gson = new Gson();
-        for (Pet pet : pets) {
-            result.append(gson.toJson(pet)).append('\n');
+        for (GameInfo game : games.games()) {
+            result.append(gson.toJson(game)).append('\n');
         }
         return result.toString();
     }
@@ -128,11 +130,11 @@ public class RepelFirst {
         return buffer.toString();
     }
 
-    public String signOut() throws ResponseException {
+    public String logout() throws InvalidMoveException {
         assertSignedIn();
-        ws.leavePetShop(visitorName);
+        server.logout();
         state = State.SIGNEDOUT;
-        return String.format("%s left the shop", visitorName);
+        return "You have signed out";
     }
 
     private Pet getPet(int id) throws ResponseException {
@@ -147,17 +149,19 @@ public class RepelFirst {
     public String help() {
         if (state == State.SIGNEDOUT) {
             return """
-                    - signIn <yourname>
+                    - help
+                    - register <username> <password> <email>
+                    - login <username> <password>
                     - quit
                     """;
         }
         return """
+                - help
                 - list
-                - adopt <pet id>
-                - rescue <name> <CAT|DOG|FROG|FISH>
-                - adoptAll
-                - signOut
-                - quit
+                - create <game name>
+                - join <ID> <WHITE|BLACK>
+                - observe <ID>
+                - logout
                 """;
     }
 
