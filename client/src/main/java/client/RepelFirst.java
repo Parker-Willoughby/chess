@@ -103,31 +103,22 @@ public class RepelFirst {
         return result.toString();
     }
 
-    public String adoptPet(String... params) throws ResponseException {
+    public String createGame(String... params) throws InvalidMoveException {
         assertSignedIn();
         if (params.length == 1) {
-            try {
-                int id = Integer.parseInt(params[0]);
-                Pet pet = getPet(id);
-                if (pet != null) {
-                    server.deletePet(id);
-                    return String.format("%s says %s", pet.name(), pet.sound());
-                }
-            } catch (NumberFormatException ignored) {
-            }
+            CreateResult created = server.create(new CreateRequest(params[0]));
+            return String.format("Game is created with id = %s", created.gameID());
         }
-        throw new ResponseException(ResponseException.Code.ClientError, "Expected: <pet id>");
+        throw new InvalidMoveException("Error");
     }
 
-    public String adoptAllPets() throws ResponseException {
+    public String playGame(String... params) throws InvalidMoveException {
         assertSignedIn();
-        var buffer = new StringBuilder();
-        for (Pet pet : server.listPets()) {
-            buffer.append(String.format("%s says %s%n", pet.name(), pet.sound()));
+        if (params.length == 2) {
+            server.join(new JoinRequest(params[1], Integer.parseInt(params[0])));
+            return String.format("Game joined");
         }
-
-        server.deleteAllPets();
-        return buffer.toString();
+        throw new InvalidMoveException("Error");
     }
 
     public String logout() throws InvalidMoveException {
@@ -135,15 +126,6 @@ public class RepelFirst {
         server.logout();
         state = State.SIGNEDOUT;
         return "You have signed out";
-    }
-
-    private Pet getPet(int id) throws ResponseException {
-        for (Pet pet : server.listPets()) {
-            if (pet.id() == id) {
-                return pet;
-            }
-        }
-        return null;
     }
 
     public String help() {
