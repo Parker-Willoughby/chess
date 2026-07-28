@@ -25,7 +25,7 @@ public class ServerFacade {
         return handleResponse(response, RegisterResult.class);
     }
 
-    public RegisterResult register(LoginRequest login) throws InvalidMoveException {
+    public RegisterResult login(LoginRequest login) throws InvalidMoveException {
         var request = buildRequest("POST", "/session", login);
         var response = sendRequest(request);
         return handleResponse(response, RegisterResult.class);

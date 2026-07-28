@@ -1,5 +1,6 @@
 package client;
 
+import java.security.InvalidKeyException;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -59,11 +60,11 @@ public class RepelFirst {
             return switch (cmd) {
                 case "help" -> help();
                 case "login" -> login(params);
-                case "register" -> register();
+                case "register" -> register(params);
                 case "quit" -> "quit";
                 default -> help();
             };
-        } catch (ResponseException ex) {
+        } catch (InvalidMoveException ex) {
             return ex.getMessage();
         }
     }
@@ -72,13 +73,12 @@ public class RepelFirst {
         if (params.length >= 1) {
             state = State.SIGNEDIN;
             visitorName = String.join("-", params);
-            ws.enterPetShop(visitorName);
             return String.format("You signed in as %s.", visitorName);
         }
-        throw new ResponseException(ResponseException.Code.ClientError, "Expected: <yourname>");
+        throw new InvalidMoveException("Error");
     }
 
-    public String rescuePet(String... params) throws ResponseException {
+    public String register(String... params) throws InvalidMoveException {
         assertSignedIn();
         if (params.length >= 2) {
             String name = params[0];
