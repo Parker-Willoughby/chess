@@ -49,13 +49,13 @@ public class RepelFirst {
     }
 
 
-//    public void notify(Notification notification) {
-//        System.out.println(RED + notification.message());
-//        printPrompt();
-//    }
-
     private void printPrompt() {
-        System.out.print("\n" + ">>> " + EscapeSequences.SET_TEXT_COLOR_GREEN);
+        if (state == State.SIGNEDOUT) {
+            System.out.print("\n" + EscapeSequences.SET_TEXT_COLOR_MAGENTA + "[LOGGED OUT] " + ">>> " + EscapeSequences.SET_TEXT_COLOR_GREEN);
+        }
+        else if (state == State.SIGNEDIN) {
+            System.out.print("\n" + EscapeSequences.SET_TEXT_COLOR_MAGENTA + "[LOGGED IN] " + ">>> " + EscapeSequences.SET_TEXT_COLOR_GREEN);
+        }
     }
 
 
@@ -83,24 +83,24 @@ public class RepelFirst {
 
     public String login(String... params) throws InvalidMoveException {
         assertSignedOut();
-        if (params.length >= 1) {
-            state = State.SIGNEDIN;
+        if (params.length == 2) {
             visitorName = params[0];
             server.login(new LoginRequest(params[0], params[1]));
+            state = State.SIGNEDIN;
             return String.format("You are logged in as %s.", visitorName);
         }
-        throw new InvalidMoveException("Error");
+        throw new InvalidMoveException("Wrong number of arguments");
     }
 
     public String register(String... params) throws InvalidMoveException {
         assertSignedOut();
         if (params.length == 3) {
-            state = State.SIGNEDIN;
             visitorName = params[0];
             server.register(new UserData(params[0], params[1], params[2]));
+            state = State.SIGNEDIN;
             return String.format("%s is registered.", visitorName);
         }
-        throw new InvalidMoveException("Error");
+        throw new InvalidMoveException("Wrong number of arguments");
     }
 
     public String list() throws InvalidMoveException {
@@ -131,29 +131,32 @@ public class RepelFirst {
             CreateResult created = server.create(new CreateRequest(params[0]));
             gameIDs[currentIndex] = created.gameID();
             currentIndex ++;
-            return String.format("Game is created with Game Number = %s", currentIndex - 1);
+            return String.format("Game is created with Game Number = %s", currentIndex);
         }
-        throw new InvalidMoveException("Error not enough arguments");
+        throw new InvalidMoveException("Wrong number of arguments");
     }
 
     public String playGame(String... params) throws InvalidMoveException {
         assertSignedIn();
         if (params.length == 2) {
-            server.join(new JoinRequest(params[1].toUpperCase(), gameIDs[Integer.parseInt(params[0]) - 1]
-            ));
-            String board= " ";
-            if (params[1].equalsIgnoreCase("WHITE")) {
-                board = buildWhiteBoard();
+            if (params[1].equalsIgnoreCase("WHITE") || params[1].equalsIgnoreCase("BLACK")) {
+                server.join(new JoinRequest(params[1].toUpperCase(), gameIDs[Integer.parseInt(params[0]) - 1]
+                ));
+                String board = " ";
+                if (params[1].equalsIgnoreCase("WHITE")) {
+                    board = buildWhiteBoard();
+                } else if (params[1].equalsIgnoreCase("BLACK")) {
+                    board = buildBlackBoard();
+                }
+                return "Game joined" + "\n" + board;
             }
-            else if (params[1].equalsIgnoreCase("BLACK")) {
-                board = buildBlackBoard();
-            }
-            return "Game joined" + "\n" + board;
+            throw new InvalidMoveException("Incorrect or Invalid player color");
         }
-        throw new InvalidMoveException("Error");
+        throw new InvalidMoveException("Wrong number of arguments");
     }
 
     public String observeGame(String... params) throws InvalidMoveException {
+        assertSignedIn();
         if (params.length == 1 && gameIDs[Integer.parseInt(params[0]) - 1] != 0) {
             return buildWhiteBoard();
         }
@@ -169,21 +172,23 @@ public class RepelFirst {
 
     public String help() {
         if (state == State.SIGNEDOUT) {
-            return """
+            return EscapeSequences.SET_TEXT_COLOR_YELLOW +
+                    """
                     - help
                     - register <username> <password> <email> (registers a new user)
                     - login <username> <password> (logs in)
                     - quit (quits program)
-                    """;
+                    """ + EscapeSequences.RESET_TEXT_COLOR;
         }
-        return """
+        return EscapeSequences.SET_TEXT_COLOR_YELLOW +
+                """
                 - help
                 - list (lists all games)
                 - create <game name> (creates a new game)
                 - join <Num> <WHITE|BLACK> (joins a game)
                 - observe <Num> (observes an active game)
                 - logout (logs out)
-                """;
+                """+ EscapeSequences.RESET_TEXT_COLOR;
     }
 
     private void assertSignedIn() throws InvalidMoveException {
@@ -245,7 +250,7 @@ public class RepelFirst {
                 EscapeSequences.SET_BG_COLOR_BLACK + " K " + EscapeSequences.SET_BG_COLOR_WHITE + " B " +
                 EscapeSequences.SET_BG_COLOR_BLACK + " N " + EscapeSequences.SET_BG_COLOR_WHITE + " R " + EscapeSequences.SET_TEXT_COLOR_BLACK +
                 EscapeSequences.SET_BG_COLOR_LIGHT_GREY + " 1 " + EscapeSequences.RESET_BG_COLOR + "\n" +
-                EscapeSequences.SET_BG_COLOR_LIGHT_GREY + "    a  b  c  d  e  f  g  h    " + EscapeSequences. RESET_BG_COLOR + "\n";
+                EscapeSequences.SET_BG_COLOR_LIGHT_GREY + "    a  b  c  d  e  f  g  h    " + EscapeSequences. RESET_BG_COLOR + "\n" + EscapeSequences.RESET_TEXT_COLOR;
 
     }
 
@@ -296,6 +301,6 @@ public class RepelFirst {
                 EscapeSequences.SET_BG_COLOR_BLACK + " Q " + EscapeSequences.SET_BG_COLOR_WHITE + " B " +
                 EscapeSequences.SET_BG_COLOR_BLACK + " N " + EscapeSequences.SET_BG_COLOR_WHITE + " R " + EscapeSequences.SET_TEXT_COLOR_BLACK +
                 EscapeSequences.SET_BG_COLOR_LIGHT_GREY + " 8 " + EscapeSequences.RESET_BG_COLOR + "\n" +
-                EscapeSequences.SET_BG_COLOR_LIGHT_GREY + "    h  g  f  e  d  c  b  a    " + EscapeSequences. RESET_BG_COLOR + "\n";
+                EscapeSequences.SET_BG_COLOR_LIGHT_GREY + "    h  g  f  e  d  c  b  a    " + EscapeSequences. RESET_BG_COLOR + "\n" + EscapeSequences.RESET_TEXT_COLOR;
     }
 }

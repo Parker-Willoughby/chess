@@ -26,6 +26,7 @@ public class ServerFacade {
         RegisterResult result = handleResponse(response, RegisterResult.class);
         authToken = result.authToken();
         return result;
+
     }
 
     public RegisterResult login(LoginRequest login) throws InvalidMoveException {
@@ -97,10 +98,10 @@ public class ServerFacade {
         if (!isSuccessful(status)) {
             var body = response.body();
             if (body != null) {
-                throw new InvalidMoveException("Error");
+                throw InvalidMoveException.fromJson(body);
             }
 
-            throw new InvalidMoveException("Error");
+            throw new InvalidMoveException("Error, request failed");
         }
 
         if (responseClass != null) {
