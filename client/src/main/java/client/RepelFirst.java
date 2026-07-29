@@ -108,9 +108,9 @@ public class RepelFirst {
         ListResult games = server.list();
         var result = new StringBuilder();
         String toAdd;
-        int gameNum = 0;
+        int gameNum = 1;
         for (GameInfo game : games.games()) {
-            gameIDs[gameNum] = game.gameID();
+            gameIDs[gameNum - 1] = game.gameID();
             toAdd = gameNum + ": " + game.gameName();
             if (game.whiteUsername() != null) {
                 toAdd += ", white user = " + game.whiteUsername();
@@ -121,7 +121,7 @@ public class RepelFirst {
             result.append(toAdd).append('\n');
             gameNum ++;
         }
-        currentIndex = gameNum;
+        currentIndex = gameNum - 1;
         return result.toString();
     }
 
@@ -131,7 +131,7 @@ public class RepelFirst {
             CreateResult created = server.create(new CreateRequest(params[0]));
             gameIDs[currentIndex] = created.gameID();
             currentIndex ++;
-            return String.format("Game is created with id = %s", currentIndex - 1);
+            return String.format("Game is created with Game Number = %s", currentIndex - 1);
         }
         throw new InvalidMoveException("Error not enough arguments");
     }
@@ -139,7 +139,7 @@ public class RepelFirst {
     public String playGame(String... params) throws InvalidMoveException {
         assertSignedIn();
         if (params.length == 2) {
-            server.join(new JoinRequest(params[1].toUpperCase(), gameIDs[Integer.parseInt(params[0])]
+            server.join(new JoinRequest(params[1].toUpperCase(), gameIDs[Integer.parseInt(params[0]) - 1]
             ));
             String board= " ";
             if (params[1].equalsIgnoreCase("WHITE")) {
@@ -154,7 +154,7 @@ public class RepelFirst {
     }
 
     public String observeGame(String... params) throws InvalidMoveException {
-        if (params.length == 1 && gameIDs[Integer.parseInt(params[0])] != 0) {
+        if (params.length == 1 && gameIDs[Integer.parseInt(params[0]) - 1] != 0) {
             return buildWhiteBoard();
         }
         throw new InvalidMoveException("Incorrect Arguments or No Game Exists");
@@ -171,18 +171,18 @@ public class RepelFirst {
         if (state == State.SIGNEDOUT) {
             return """
                     - help
-                    - register <username> <password> <email>
-                    - login <username> <password>
-                    - quit
+                    - register <username> <password> <email> (registers a new user)
+                    - login <username> <password> (logs in)
+                    - quit (quits program)
                     """;
         }
         return """
                 - help
-                - list
-                - create <game name>
-                - join <ID> <WHITE|BLACK>
-                - observe <ID>
-                - logout
+                - list (lists all games)
+                - create <game name> (creates a new game)
+                - join <Num> <WHITE|BLACK> (joins a game)
+                - observe <Num> (observes an active game)
+                - logout (logs out)
                 """;
     }
 
