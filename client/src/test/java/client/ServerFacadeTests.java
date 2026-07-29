@@ -58,4 +58,66 @@ public class ServerFacadeTests {
         assertThrows(InvalidMoveException.class, () -> facade.login(new LoginRequest("player1", "pass")));
     }
 
+    @Test
+    void logoutSuccess() throws Exception {
+        facade.register(new UserData("player1", "password", "p1@email.com"));
+        facade.logout();
+        assertThrows(InvalidMoveException.class, () -> facade.logout());
+    }
+
+    @Test
+    void logoutFail() throws Exception {
+        assertThrows(InvalidMoveException.class, () -> facade.logout());
+    }
+
+    @Test
+    void createSuccess() throws Exception {
+        facade.register(new UserData("joe", "joe", "joe"));
+        CreateResult created = facade.create(new CreateRequest("game"));
+        assertTrue(created.gameID() >= 1);
+    }
+
+    @Test
+    void createFail() throws Exception {
+        assertThrows(InvalidMoveException.class, () -> facade.create(new CreateRequest("game")));
+    }
+
+    @Test
+    void listSuccess() throws Exception {
+        facade.register(new UserData("joe", "joe", "joe"));
+        facade.create(new CreateRequest("game"));
+        facade.create(new CreateRequest("game2"));
+        assertTrue(facade.list().games().size() == 2);
+    }
+
+    @Test
+    void listFail() throws Exception {
+        assertThrows(InvalidMoveException.class, () -> facade.list());
+    }
+
+    @Test
+    void joinSuccess() throws Exception {
+        facade.register(new UserData("joe", "joe", "joe"));
+        CreateResult result = facade.create(new CreateRequest("game"));
+        facade.join(new JoinRequest("WHITE", result.gameID()));
+        for (GameInfo game : facade.list().games()) {
+            assertEquals(game.whiteUsername(), "joe");
+        }
+    }
+
+    @Test
+    void joinFail() throws Exception {
+        facade.register(new UserData("joe", "joe", "joe"));
+        assertThrows(InvalidMoveException.class, () -> facade.join(new JoinRequest("WHITE", 7)));
+    }
+
+    @Test
+    void clearSuccess() throws Exception {
+        facade.register(new UserData("joe", "joe", "joe"));
+        facade.create(new CreateRequest("game"));
+        facade.create(new CreateRequest("game2"));
+        facade.clear();
+        assertThrows(InvalidMoveException.class, () -> facade.login(new LoginRequest("joe", "joe")));
+    }
+
 }
