@@ -4,12 +4,14 @@ import java.security.InvalidKeyException;
 import java.util.Arrays;
 import java.util.Scanner;
 
+import chess.ChessBoard;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import model.*;
 import records.*;
 import records.GameInfo;
 import records.ListResult;
+import ui.EscapeSequences;
 
 import static java.awt.Color.BLUE;
 import static java.awt.Color.GREEN;
@@ -35,7 +37,7 @@ public class RepelFirst {
 
             try {
                 result = eval(line);
-                System.out.print(BLUE + result);
+                System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE + result);
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);
@@ -51,7 +53,7 @@ public class RepelFirst {
 //    }
 
     private void printPrompt() {
-        System.out.print("\n" + ">>> " + GREEN);
+        System.out.print("\n" + ">>> " + EscapeSequences.SET_TEXT_COLOR_GREEN);
     }
 
 
@@ -65,8 +67,8 @@ public class RepelFirst {
                 case "login" -> login(params);
                 case "register" -> register(params);
                 case "list" -> list();
-                case "create" -> createGame();
-                case "join" -> playGame();
+                case "create" -> createGame(params);
+                case "join" -> playGame(params);
                 case "logout" -> logout();
                 case "quit" -> "quit";
                 default -> help();
@@ -155,5 +157,9 @@ public class RepelFirst {
         if (state == State.SIGNEDOUT) {
             throw new InvalidMoveException("You must sign in");
         }
+    }
+
+    private String buildBoard(ChessBoard board) {
+
     }
 }
