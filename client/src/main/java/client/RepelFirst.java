@@ -161,11 +161,32 @@ public class RepelFirst {
     }
 
     private String buildBoard(ChessBoard board) {
-        return EscapeSequences.SET_BG_COLOR_DARK_GREY + " a b c d e f g h " + "\n"
-                + "8" + EscapeSequences.SET_BG_COLOR_WHITE + "R" + EscapeSequences.SET_BG_COLOR_BLACK + "N" +
-                EscapeSequences.SET_BG_COLOR_WHITE + "B" + EscapeSequences.SET_BG_COLOR_BLACK + "Q" +
-                EscapeSequences.SET_BG_COLOR_WHITE + "K" + EscapeSequences.SET_BG_COLOR_BLACK + "B" +
-                EscapeSequences.SET_BG_COLOR_WHITE + "N" + EscapeSequences.SET_BG_COLOR_BLACK + "R";
+        return EscapeSequences.SET_BG_COLOR_DARK_GREY + "    a  b  c  d  e  f  g  h   " + EscapeSequences. RESET_BG_COLOR + "\n"
+                + " 8 " + EscapeSequences.SET_BG_COLOR_WHITE + " R " + EscapeSequences.SET_BG_COLOR_BLACK + " N " +
+                EscapeSequences.SET_BG_COLOR_WHITE + " B " + EscapeSequences.SET_BG_COLOR_BLACK + " Q " +
+                EscapeSequences.SET_BG_COLOR_WHITE + " K " + EscapeSequences.SET_BG_COLOR_BLACK + " B " +
+                EscapeSequences.SET_BG_COLOR_WHITE + " N " + EscapeSequences.SET_BG_COLOR_BLACK + " R " +
+                EscapeSequences.SET_BG_COLOR_DARK_GREY + " 8 " +  EscapeSequences.RESET_BG_COLOR + "\n" +
+                EscapeSequences.SET_BG_COLOR_DARK_GREY + " 7 " + EscapeSequences.SET_BG_COLOR_BLACK + " P " + EscapeSequences.SET_BG_COLOR_WHITE + " P " +
+                EscapeSequences.SET_BG_COLOR_BLACK + " P " + EscapeSequences.SET_BG_COLOR_WHITE + " P " +
+                EscapeSequences.SET_BG_COLOR_BLACK + " P " + EscapeSequences.SET_BG_COLOR_WHITE + " P " +
+                EscapeSequences.SET_BG_COLOR_BLACK + " P " + EscapeSequences.SET_BG_COLOR_WHITE + " P " +
+                EscapeSequences.SET_BG_COLOR_DARK_GREY + " 7 " + EscapeSequences.RESET_BG_COLOR + "\n" +
+                EscapeSequences.SET_BG_COLOR_DARK_GREY + " 6 " + EscapeSequences.SET_BG_COLOR_WHITE + "   " + EscapeSequences.SET_BG_COLOR_BLACK + "   " +
+                EscapeSequences.SET_BG_COLOR_WHITE + "   " + EscapeSequences.SET_BG_COLOR_BLACK + "   " +
+                EscapeSequences.SET_BG_COLOR_WHITE + "   " + EscapeSequences.SET_BG_COLOR_BLACK + "   " +
+                EscapeSequences.SET_BG_COLOR_WHITE + "   " + EscapeSequences.SET_BG_COLOR_BLACK + "   " +
+                EscapeSequences.SET_BG_COLOR_DARK_GREY + " 6 " + EscapeSequences.RESET_BG_COLOR + "\n" +
+                EscapeSequences.SET_BG_COLOR_DARK_GREY + " 5 " + EscapeSequences.SET_BG_COLOR_BLACK + "   " + EscapeSequences.SET_BG_COLOR_WHITE + "   " +
+                EscapeSequences.SET_BG_COLOR_BLACK + "   " + EscapeSequences.SET_BG_COLOR_WHITE + "   " +
+                EscapeSequences.SET_BG_COLOR_BLACK + "   " + EscapeSequences.SET_BG_COLOR_WHITE + "   " +
+                EscapeSequences.SET_BG_COLOR_BLACK + "   " + EscapeSequences.SET_BG_COLOR_WHITE + "   " +
+                EscapeSequences.SET_BG_COLOR_DARK_GREY + " 5 " + EscapeSequences.RESET_BG_COLOR + "\n" +
+                EscapeSequences.SET_BG_COLOR_DARK_GREY + " 4 " + EscapeSequences.SET_BG_COLOR_WHITE + "   " + EscapeSequences.SET_BG_COLOR_BLACK + "   " +
+                EscapeSequences.SET_BG_COLOR_WHITE + "   " + EscapeSequences.SET_BG_COLOR_BLACK + "   " +
+                EscapeSequences.SET_BG_COLOR_WHITE + "   " + EscapeSequences.SET_BG_COLOR_BLACK + "   " +
+                EscapeSequences.SET_BG_COLOR_WHITE + "   " + EscapeSequences.SET_BG_COLOR_BLACK + "   " +
+                EscapeSequences.SET_BG_COLOR_DARK_GREY + " 4 " + EscapeSequences.RESET_BG_COLOR + "\n";
 
     }
 }
