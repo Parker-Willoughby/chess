@@ -14,59 +14,64 @@ import java.net.http.HttpResponse.BodyHandlers;
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
     private final String serverUrl;
+    private String authToken = null;
 
     public ServerFacade(String url) {
         serverUrl = url;
     }
 
     public RegisterResult register(UserData user) throws InvalidMoveException {
-        var request = buildRequest("POST", "/user", user);
+        var request = buildRequest("POST", "/user", user, null);
         var response = sendRequest(request);
-        return handleResponse(response, RegisterResult.class);
+        RegisterResult result = handleResponse(response, RegisterResult.class);
+        authToken = result.authToken();
+        return result;
     }
 
     public RegisterResult login(LoginRequest login) throws InvalidMoveException {
-        var request = buildRequest("POST", "/session", login);
+        var request = buildRequest("POST", "/session", login, null);
         var response = sendRequest(request);
-        return handleResponse(response, RegisterResult.class);
+        RegisterResult result = handleResponse(response, RegisterResult.class);
+        authToken = result.authToken();
+        return result;
     }
 
     public CreateResult create(CreateRequest create) throws InvalidMoveException {
-        var request = buildRequest("POST", "/game", create);
+        var request = buildRequest("POST", "/game", create, authToken);
         var response = sendRequest(request);
         return handleResponse(response, CreateResult.class);
     }
 
     public ListResult list() throws InvalidMoveException {
-        var request = buildRequest("GET", "/game", null);
+        var request = buildRequest("GET", "/game", null, authToken);
         var response = sendRequest(request);
         return handleResponse(response, ListResult.class);
     }
 
     public void join(JoinRequest join) throws InvalidMoveException {
-        var request = buildRequest("PUT", "/game", join);
+        var request = buildRequest("PUT", "/game", join, authToken);
         var response = sendRequest(request);
         handleResponse(response, null);
     }
 
     public void logout() throws InvalidMoveException {
-        //var path = String.format("/pet/%s", id);
-        var request = buildRequest("DELETE", "/session", null);
+        var request = buildRequest("DELETE", "/session", null, authToken);
         var response = sendRequest(request);
         handleResponse(response, null);
+        authToken = null;
     }
 
     public void clear() throws InvalidMoveException {
-        var request = buildRequest("DELETE", "/db", null);
+        var request = buildRequest("DELETE", "/db", null, null);
         sendRequest(request);
     }
 
-    private HttpRequest buildRequest(String method, String path, Object body) {
+    private HttpRequest buildRequest(String method, String path, Object body, String token) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
                 .method(method, makeRequestBody(body));
-        if (body != null) {
-            request.setHeader("Content-Type", "application/json");
+        if (token != null) {
+            request.setHeader("authorization", token);
         }
         return request.build();
     }
