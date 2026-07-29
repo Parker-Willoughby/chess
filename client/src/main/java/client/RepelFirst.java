@@ -101,9 +101,18 @@ public class RepelFirst {
         assertSignedIn();
         ListResult games = server.list();
         var result = new StringBuilder();
-        var gson = new Gson();
+        String toAdd;
+        int gameNum = 1;
         for (GameInfo game : games.games()) {
-            result.append(gson.toJson(game)).append('\n');
+            toAdd = gameNum + ": " + game.gameName();
+            if (game.whiteUsername() != null) {
+                toAdd += ", white user = " + game.whiteUsername();
+            }
+            if (game.blackUsername() != null) {
+                toAdd += ", black user = " + game.blackUsername();
+            }
+            result.append(toAdd).append('\n');
+            gameNum ++;
         }
         return result.toString();
     }
