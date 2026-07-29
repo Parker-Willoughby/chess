@@ -98,7 +98,7 @@ public class RepelFirst {
             visitorName = params[0];
             server.register(new UserData(params[0], params[1], params[2]));
             state = State.SIGNEDIN;
-            return String.format("%s is registered.", visitorName);
+            return String.format("%s is registered and logged in.", visitorName);
         }
         throw new InvalidMoveException("Wrong number of arguments");
     }
@@ -138,10 +138,19 @@ public class RepelFirst {
 
     public String playGame(String... params) throws InvalidMoveException {
         assertSignedIn();
+        int id = 0;
         if (params.length == 2) {
             if (params[1].equalsIgnoreCase("WHITE") || params[1].equalsIgnoreCase("BLACK")) {
-                server.join(new JoinRequest(params[1].toUpperCase(), gameIDs[Integer.parseInt(params[0]) - 1]
-                ));
+                try {
+                    id = Integer.parseInt(params[0]);
+                }
+                catch (NumberFormatException e) {
+                    throw new InvalidMoveException("Game Number must be a number");
+                }
+                if (id < 1 || id > 100 || gameIDs[id - 1] == 0) {
+                    throw new InvalidMoveException("No game exists. \n" + "If you think one should exist, try list first");
+                }
+                server.join(new JoinRequest(params[1].toUpperCase(), gameIDs[Integer.parseInt(params[0]) - 1]));
                 String board = " ";
                 if (params[1].equalsIgnoreCase("WHITE")) {
                     board = buildWhiteBoard();
@@ -157,10 +166,21 @@ public class RepelFirst {
 
     public String observeGame(String... params) throws InvalidMoveException {
         assertSignedIn();
+        int id = 0;
+        try {
+            id = Integer.parseInt(params[0]);
+        }
+        catch (NumberFormatException e) {
+            throw new InvalidMoveException("Game Number must be a number");
+        }
+        if (id < 1 || id > 100 || gameIDs[id - 1] == 0) {
+            throw new InvalidMoveException("No game exists. \n" + "If you think one should exist, try list first");
+        }
         if (params.length == 1 && gameIDs[Integer.parseInt(params[0]) - 1] != 0) {
             return buildWhiteBoard();
         }
-        throw new InvalidMoveException("Incorrect Arguments or No Game Exists");
+        throw new InvalidMoveException("Incorrect Arguments or No Game Exists. \n" +
+                "If you think one should exist, try list first");
     }
 
     public String logout() throws InvalidMoveException {
