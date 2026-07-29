@@ -112,8 +112,9 @@ public class RepelFirst {
     public String createGame(String... params) throws InvalidMoveException {
         assertSignedIn();
         if (params.length == 1) {
-            CreateResult created = server.create(new CreateRequest(params[0]));
-            return String.format("Game is created with id = %s", created.gameID());
+            //CreateResult created = server.create(new CreateRequest(params[0]));
+            //return String.format("Game is created with id = %s", created.gameID());
+            return buildBoard(new ChessBoard());
         }
         throw new InvalidMoveException("Error not enough arguments");
     }
@@ -160,6 +161,11 @@ public class RepelFirst {
     }
 
     private String buildBoard(ChessBoard board) {
+        return EscapeSequences.SET_BG_COLOR_DARK_GREY + " a b c d e f g h " + "\n"
+                + "8" + EscapeSequences.SET_BG_COLOR_WHITE + "R" + EscapeSequences.SET_BG_COLOR_BLACK + "N" +
+                EscapeSequences.SET_BG_COLOR_WHITE + "B" + EscapeSequences.SET_BG_COLOR_BLACK + "Q" +
+                EscapeSequences.SET_BG_COLOR_WHITE + "K" + EscapeSequences.SET_BG_COLOR_BLACK + "B" +
+                EscapeSequences.SET_BG_COLOR_WHITE + "N" + EscapeSequences.SET_BG_COLOR_BLACK + "R";
 
     }
 }
