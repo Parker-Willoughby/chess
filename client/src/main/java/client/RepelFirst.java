@@ -166,21 +166,19 @@ public class RepelFirst {
 
     public String observeGame(String... params) throws InvalidMoveException {
         assertSignedIn();
-        int id = 0;
-        try {
-            id = Integer.parseInt(params[0]);
-        }
-        catch (NumberFormatException e) {
-            throw new InvalidMoveException("Game Number must be a number");
-        }
-        if (id < 1 || id > 100 || gameIDs[id - 1] == 0) {
-            throw new InvalidMoveException("No game exists. \n" + "If you think one should exist, try list first");
-        }
-        if (params.length == 1 && gameIDs[Integer.parseInt(params[0]) - 1] != 0) {
+        if (params.length == 1) {
+            int id = 0;
+            try {
+                id = Integer.parseInt(params[0]);
+            } catch (NumberFormatException e) {
+                throw new InvalidMoveException("Game Number must be a number");
+            }
+            if (id < 1 || id > 100 || gameIDs[id - 1] == 0) {
+                throw new InvalidMoveException("No game exists. \n" + "If you think one should exist, try list first");
+            }
             return buildWhiteBoard();
         }
-        throw new InvalidMoveException("Incorrect Arguments or No Game Exists. \n" +
-                "If you think one should exist, try list first");
+        throw new InvalidMoveException("Incorrect Number of Arguments");
     }
 
     public String logout() throws InvalidMoveException {
