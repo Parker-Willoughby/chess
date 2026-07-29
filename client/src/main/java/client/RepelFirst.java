@@ -13,9 +13,6 @@ import records.GameInfo;
 import records.ListResult;
 import ui.EscapeSequences;
 
-import static java.awt.Color.BLUE;
-import static java.awt.Color.GREEN;
-
 public class RepelFirst {
     private String visitorName = null;
     private final ServerFacade server;
@@ -79,6 +76,7 @@ public class RepelFirst {
     }
 
     public String login(String... params) throws InvalidMoveException {
+        assertSignedOut();
         if (params.length >= 1) {
             state = State.SIGNEDIN;
             visitorName = params[0];
@@ -89,6 +87,7 @@ public class RepelFirst {
     }
 
     public String register(String... params) throws InvalidMoveException {
+        assertSignedOut();
         if (params.length >= 1) {
             state = State.SIGNEDIN;
             visitorName = params[0];
@@ -112,9 +111,8 @@ public class RepelFirst {
     public String createGame(String... params) throws InvalidMoveException {
         assertSignedIn();
         if (params.length == 1) {
-            //CreateResult created = server.create(new CreateRequest(params[0]));
-            //return String.format("Game is created with id = %s", created.gameID());
-            return buildBoard(new ChessBoard());
+            CreateResult created = server.create(new CreateRequest(params[0]));
+            return String.format("Game is created with id = %s", created.gameID());
         }
         throw new InvalidMoveException("Error not enough arguments");
     }
@@ -122,8 +120,8 @@ public class RepelFirst {
     public String playGame(String... params) throws InvalidMoveException {
         assertSignedIn();
         if (params.length == 2) {
-            server.join(new JoinRequest(params[1], Integer.parseInt(params[0])));
-            return String.format("Game joined");
+            server.join(new JoinRequest(params[1].toUpperCase(), Integer.parseInt(params[0])));
+            return "Game joined" + "\n" + buildBoard(new ChessBoard());
         }
         throw new InvalidMoveException("Error");
     }
@@ -157,6 +155,12 @@ public class RepelFirst {
     private void assertSignedIn() throws InvalidMoveException {
         if (state == State.SIGNEDOUT) {
             throw new InvalidMoveException("You must sign in");
+        }
+    }
+
+    private void assertSignedOut() throws InvalidMoveException {
+        if (state == State.SIGNEDIN) {
+            throw new InvalidMoveException("You are already signed in");
         }
     }
 
