@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Scanner;
 
 import chess.ChessBoard;
+import chess.ChessPosition;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import model.*;
@@ -278,6 +279,16 @@ public class RepelFirst {
                 EscapeSequences.SET_BG_COLOR_LIGHT_GREY + "    a  b  c  d  e  f  g  h    "
                 + EscapeSequences. RESET_BG_COLOR + "\n" + EscapeSequences.RESET_TEXT_COLOR;
 
+    }
+
+    private String realBuildWhiteBoard(ChessBoard board) {
+        String printBoard = " ";
+        for (int i = 1; i < 9; i ++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition spot = new ChessPosition(i, j);
+            }
+        }
+        return printBoard;
     }
 
     private String buildBlackBoard() {
