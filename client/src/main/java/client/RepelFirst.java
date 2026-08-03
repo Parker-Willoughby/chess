@@ -175,7 +175,7 @@ public class RepelFirst {
             if (id < 1 || id > 100 || gameIDs[id - 1] == 0) {
                 throw new InvalidMoveException("No game exists. \n" + "If you think one should exist, try list first");
             }
-            return realBuildWhiteBoard(new ChessBoard());
+            return realBuildWhiteBoard(new ChessGame().getBoard());
         }
         throw new InvalidMoveException("Incorrect Number of Arguments");
     }
@@ -282,8 +282,14 @@ public class RepelFirst {
     private String realBuildWhiteBoard(ChessBoard board) {
         String printBoard = EscapeSequences.SET_BG_COLOR_LIGHT_GREY + EscapeSequences.SET_TEXT_COLOR_BLACK + "    a  b  c  d  e  f  g  h    " +
                 EscapeSequences. RESET_BG_COLOR + "\n";
-        String lastColor = "BLACK";
+        String lastColor;
         for (int i = 1; i < 9; i ++) {
+            if (i % 2 == 0) {
+                lastColor = "WHITE";
+            }
+            else {
+                lastColor = "BLACK";
+            }
             for (int j = 0; j < 10; j++) {
                 if (j > 0 && j < 9) {
                     if (lastColor == "WHITE") {
@@ -294,7 +300,7 @@ public class RepelFirst {
                         printBoard += EscapeSequences.SET_BG_COLOR_WHITE;
                         lastColor = "WHITE";
                     }
-                    ChessPiece piece = board.getPiece(new ChessPosition(i, j));
+                    ChessPiece piece = board.getPiece(new ChessPosition(9 - i, j));
                     if (piece == null) {
                         printBoard += "   ";
                     }
@@ -309,7 +315,7 @@ public class RepelFirst {
                             printBoard += " P ";
                         }
                         else if (piece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
-                            printBoard += " K ";
+                            printBoard += " N ";
                         }
                         else if (piece.getPieceType() == ChessPiece.PieceType.BISHOP) {
                             printBoard += " B ";
@@ -326,7 +332,7 @@ public class RepelFirst {
                     }
                 }
                 else {
-                    printBoard += EscapeSequences.SET_BG_COLOR_LIGHT_GREY + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i + " ";
+                    printBoard += EscapeSequences.SET_BG_COLOR_LIGHT_GREY + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + (9 - i) + " ";
                     if (j == 9) {
                         printBoard += EscapeSequences.RESET_BG_COLOR + "\n";
                     }
