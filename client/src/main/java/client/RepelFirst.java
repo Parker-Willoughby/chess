@@ -7,9 +7,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Scanner;
 
-import chess.ChessBoard;
-import chess.ChessPosition;
-import chess.InvalidMoveException;
+import chess.*;
 import com.google.gson.Gson;
 import model.*;
 import records.*;
@@ -177,7 +175,7 @@ public class RepelFirst {
             if (id < 1 || id > 100 || gameIDs[id - 1] == 0) {
                 throw new InvalidMoveException("No game exists. \n" + "If you think one should exist, try list first");
             }
-            return buildWhiteBoard();
+            return realBuildWhiteBoard(new ChessBoard());
         }
         throw new InvalidMoveException("Incorrect Number of Arguments");
     }
@@ -282,12 +280,61 @@ public class RepelFirst {
     }
 
     private String realBuildWhiteBoard(ChessBoard board) {
-        String printBoard = " ";
+        String printBoard = EscapeSequences.SET_BG_COLOR_LIGHT_GREY + EscapeSequences.SET_TEXT_COLOR_BLACK + "    a  b  c  d  e  f  g  h    " +
+                EscapeSequences. RESET_BG_COLOR + "\n";
+        String lastColor = "BLACK";
         for (int i = 1; i < 9; i ++) {
-            for (int j = 1; j < 9; j++) {
-                ChessPosition spot = new ChessPosition(i, j);
+            for (int j = 0; j < 10; j++) {
+                if (j > 0 && j < 9) {
+                    if (lastColor == "WHITE") {
+                        printBoard += EscapeSequences.SET_BG_COLOR_BLACK;
+                        lastColor = "BLACK";
+                    }
+                    else {
+                        printBoard += EscapeSequences.SET_BG_COLOR_WHITE;
+                        lastColor = "WHITE";
+                    }
+                    ChessPiece piece = board.getPiece(new ChessPosition(i, j));
+                    if (piece == null) {
+                        printBoard += "   ";
+                    }
+                    else {
+                        if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                            printBoard += EscapeSequences.SET_TEXT_COLOR_RED;
+                        }
+                        else {
+                            printBoard += EscapeSequences.SET_TEXT_COLOR_BLUE;
+                        }
+                        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+                            printBoard += " P ";
+                        }
+                        else if (piece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
+                            printBoard += " K ";
+                        }
+                        else if (piece.getPieceType() == ChessPiece.PieceType.BISHOP) {
+                            printBoard += " B ";
+                        }
+                        else if (piece.getPieceType() == ChessPiece.PieceType.ROOK) {
+                            printBoard += " R ";
+                        }
+                        else if (piece.getPieceType() == ChessPiece.PieceType.QUEEN) {
+                            printBoard += " Q ";
+                        }
+                        else if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+                            printBoard += " K ";
+                        }
+                    }
+                }
+                else {
+                    printBoard += EscapeSequences.SET_BG_COLOR_LIGHT_GREY + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i + " ";
+                    if (j == 9) {
+                        printBoard += EscapeSequences.RESET_BG_COLOR + "\n";
+                    }
+                }
             }
         }
+        printBoard += EscapeSequences.SET_BG_COLOR_LIGHT_GREY + "    a  b  c  d  e  f  g  h    "
+                + EscapeSequences. RESET_BG_COLOR + "\n" + EscapeSequences.RESET_TEXT_COLOR;
         return printBoard;
     }
 
