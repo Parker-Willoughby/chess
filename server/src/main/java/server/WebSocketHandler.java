@@ -94,17 +94,20 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         GameData gameData = SQLGameDAO.getGame(command.getGameID());
         ChessGame game = gameData.game();
         GameData newGame = new GameData(gameData.gameID(), null, null, gameData.gameName(), game);
-        if (getTeamStatus(username, command.getGameID()) == "WHITE") {
+        if (getTeamStatus(username, command.getGameID()).equals("WHITE")) {
             newGame = new GameData(gameData.gameID(), null, gameData.blackUsername(), gameData.gameName(), game);
         }
-        else if (getTeamStatus(username, command.getGameID()) == "BLACK") {
+        else if (getTeamStatus(username, command.getGameID()).equals("BLACK")) {
             newGame = new GameData(gameData.gameID(), gameData.whiteUsername(), null, gameData.gameName(), game);
+        }
+        else if (getTeamStatus(username, command.getGameID()).equals("OBSERVER")) {
+            newGame = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
         }
         SQLGameDAO.updateGame(newGame);
     }
 
     private void resign(Session session, String username, ResignCommand command) throws IOException, DataAccessException, InvalidMoveException {
-        if (getTeamStatus(username, command.getGameID()) == "OBSERVER") {
+        if (getTeamStatus(username, command.getGameID()).equals("OBSERVER")) {
             throw new InvalidMoveException("Error: Not a valid player");
         }
         var message = String.format("%s has resigned", username);
@@ -119,7 +122,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     public void makeMove(Session session, String username, MakeMoveCommand command) throws DataAccessException {
         try {
-            if (getTeamStatus(username, command.getGameID()) == "OBSERVER") {
+            if (getTeamStatus(username, command.getGameID()).equals("OBSERVER")) {
                 throw new InvalidMoveException("Error: Not a valid player");
             }
             GameData gameData = SQLGameDAO.getGame(command.getGameID());
