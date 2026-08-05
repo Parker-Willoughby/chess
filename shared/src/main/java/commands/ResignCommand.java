@@ -1,6 +1,4 @@
-package server;
-
-import commands.UserGameCommand;
+package commands;
 
 public class ResignCommand extends UserGameCommand{
     public ResignCommand(UserGameCommand.CommandType commandType, String authToken, Integer gameID) {

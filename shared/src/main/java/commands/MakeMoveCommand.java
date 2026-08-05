@@ -1,7 +1,6 @@
-package server;
+package commands;
 
 import chess.ChessMove;
-import commands.UserGameCommand;
 
 public class MakeMoveCommand extends UserGameCommand {
     private final ChessMove move;

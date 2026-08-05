@@ -1,7 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
-import commands.UserGameCommand;
+import commands.*;
 import dataaccess.DataAccessException;
 import dataaccess.SQLAuthDAO;
 import dataaccess.UnauthorizedException;
@@ -35,7 +35,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             gameId = command.getGameID();
             String username = getUsername(command.getAuthToken());
-            saveSession(gameId, session);
             switch (command.getCommandType()) {
                 case CONNECT -> connect(session, username, (ConnectCommand) command);
                 case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
@@ -56,9 +55,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
-    private void connect(String username, Session session) throws IOException {
+    private void connect(String username, Session session, ConnectCommand command) throws IOException {
         connections.add(session);
-        var message = String.format("%s is in the shop", username);
+        var message = String.format("%s has joined the game", username);
         var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
         connections.broadcast(session, notification);
     }
