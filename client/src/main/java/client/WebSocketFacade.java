@@ -32,7 +32,7 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
+                    NotificationMessage notification = new Gson().fromJson(message, NotificationMessage.class);
                     notificationHandler.notify(notification);
                 }
             });
@@ -70,6 +70,15 @@ public class WebSocketFacade extends Endpoint {
             var moveCommand = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameId, move);
             this.session.getBasicRemote().sendText(new Gson().toJson(moveCommand));
         } catch (IOException ex) {
+            throw new InvalidMoveException("Error");
+        }
+    }
+
+    public void resign() throws InvalidMoveException {
+        try {
+            var resign = new ResignCommand(UserGameCommand.CommandType.RESIGN, authToken, gameId);
+            this.session.getBasicRemote().sendText(new Gson().toJson(resign));
+        } catch (IOException e) {
             throw new InvalidMoveException("Error");
         }
     }

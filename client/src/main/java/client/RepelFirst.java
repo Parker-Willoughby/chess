@@ -14,16 +14,20 @@ import records.*;
 import records.GameInfo;
 import records.ListResult;
 import ui.EscapeSequences;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
-public class RepelFirst {
+public class RepelFirst implements NotificationHandler {
     private String visitorName = null;
     private final ServerFacade server;
     private State state = State.SIGNEDOUT;
     private int[] gameIDs = new int[100];
     private int currentIndex = 0;
+    private final WebSocketFacade ws;
 
     public RepelFirst(String serverUrl) throws InvalidMoveException {
         server = new ServerFacade(serverUrl);
+        ws = new WebSocketFacade(serverUrl, this);
     }
 
     public void run() {
@@ -55,8 +59,15 @@ public class RepelFirst {
         else if (state == State.SIGNEDIN) {
             System.out.print("\n" + EscapeSequences.SET_TEXT_COLOR_MAGENTA + "[LOGGED IN] " + ">>> " + EscapeSequences.SET_TEXT_COLOR_GREEN);
         }
+        else if (state == State.INGAME) {
+            System.out.print("\n" + EscapeSequences.SET_TEXT_COLOR_MAGENTA + "[IN GAME] " + ">>> " + EscapeSequences.SET_TEXT_COLOR_GREEN);
+        }
     }
 
+    public void notify(NotificationMessage notification) {
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + notification.getMessage());
+        printPrompt();
+    }
 
     public String eval(String input) {
         try {
