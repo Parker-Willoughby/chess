@@ -102,7 +102,7 @@ public class RepelFirst implements NotificationHandler {
                 case "redraw" -> redraw();
                 case "leave" -> leave();
 //                case "move" -> move(params);
-//                case "resign" -> resign();
+                case "resign" -> resign();
 //                case "highlight" -> highlight(params);
                 case "quit" -> "quit";
                 default -> help();
@@ -220,6 +220,23 @@ public class RepelFirst implements NotificationHandler {
         state = State.SIGNEDIN;
         currentBoard = null;
         return "You have left the game";
+    }
+
+    public String resign() throws InvalidMoveException {
+        assertInGame();
+        Scanner scanner = new Scanner(System.in);
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Would you like to resign? [Y/N]: ");
+        String line = scanner.nextLine();
+        if (line.equals("Y")) {
+            ws.resign();
+            return "You have resigned";
+        }
+        else if (line.equals("N")) {
+            return " ";
+        }
+        else {
+            throw new InvalidMoveException("Please input Y or N");
+        }
     }
 
     public String redraw() throws InvalidMoveException {
