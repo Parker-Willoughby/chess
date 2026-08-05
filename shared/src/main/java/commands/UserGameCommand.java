@@ -1,5 +1,6 @@
 package commands;
 
+import chess.ChessMove;
 import model.AuthData;
 
 import java.util.Objects;
@@ -68,3 +69,4 @@ public class UserGameCommand {
         return Objects.hash(getCommandType(), getAuthToken(), getGameID());
     }
 }
+

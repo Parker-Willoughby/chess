@@ -29,6 +29,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             switch (command.getCommandType()) {
                 case CONNECT -> connect(command.getUsername(), ctx.session);
                 case MAKE_MOVE -> ;
+                case LEAVE -> leave(command.getUsername(), ctx.session);
+                case RESIGN -> ;
             }
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -40,14 +42,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
-    private void connect(String visitorName, Session session) throws IOException {
+    private void connect(String username, Session session) throws IOException {
         connections.add(session);
-        var message = String.format("%s is in the shop", visitorName);
-        var notification = new Notification(Notification.Type.ARRIVAL, message);
+        var message = String.format("%s is in the shop", username);
+        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
         connections.broadcast(session, notification);
     }
 
-    private void exit(String visitorName, Session session) throws IOException {
+    private void leave(String visitorName, Session session) throws IOException {
         var message = String.format("%s left the shop", visitorName);
         var notification = new Notification(Notification.Type.DEPARTURE, message);
         connections.broadcast(session, notification);
