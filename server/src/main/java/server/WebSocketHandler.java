@@ -109,7 +109,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             SQLGameDAO.updateGame(newGame);
             connections.broadcast(null, new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game), command.getGameID());
             connections.broadcast(session, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "A move was made"), command.getGameID());
-            if (game.isInCheckmate())
+            if (game.isInCheckmate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                connections.broadcast(null, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "Checkmate bro"), command.getGameID());
+            }
+            else if (game.isInStalemate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                connections.broadcast(null, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "Stalemate bro"), command.getGameID());
+            }
+            else if (game.isInCheck(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                connections.broadcast(null, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "Check bro"), command.getGameID());
+            }
         } catch (Exception ex) {
             throw new DataAccessException("Error");
         }
