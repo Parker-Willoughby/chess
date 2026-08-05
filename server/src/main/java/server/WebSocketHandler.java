@@ -93,11 +93,18 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.remove(command.getGameID(), session);
     }
 
-    private void resign(Session session, String username, ResignCommand command) throws IOException {
+    private void resign(Session session, String username, ResignCommand command) throws IOException, DataAccessException, InvalidMoveException {
+        if (getTeamStatus(username, command.getGameID()) == "OBSERVER") {
+            throw new InvalidMoveException("Error: Not a valid player");
+        }
         var message = String.format("%s has resigned", username);
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(null, notification, command.getGameID());
         connections.remove(command.getGameID(), session);
+        GameData gameData = SQLGameDAO.getGame(command.getGameID());
+        ChessGame game = gameData.game();
+        GameData newGame = new GameData(gameData.gameID(), null, null, gameData.gameName(), game);
+        SQLGameDAO.updateGame(newGame);
     }
 
     public void makeMove(Session session, String username, MakeMoveCommand command) throws DataAccessException {
