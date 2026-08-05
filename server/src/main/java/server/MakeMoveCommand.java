@@ -6,8 +6,8 @@ import commands.UserGameCommand;
 public class MakeMoveCommand extends UserGameCommand {
     private final ChessMove move;
 
-    public MakeMoveCommand(CommandType commandType, String username, String authToken, Integer gameID, ChessMove move) {
-        super(commandType, username, authToken, gameID);
+    public MakeMoveCommand(CommandType commandType, String authToken, Integer gameID, ChessMove move) {
+        super(commandType, authToken, gameID);
         this.move = move;
     }
 

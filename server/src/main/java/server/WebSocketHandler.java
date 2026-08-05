@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import commands.UserGameCommand;
+import dataaccess.UnauthorizedException;
 import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsCloseHandler;
 import io.javalin.websocket.WsConnectContext;
@@ -24,17 +25,27 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     @Override
     public void handleMessage(WsMessageContext ctx) {
+        int gameId = -1;
+        Session session = ctx.session;
+
         try {
             UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
+            gameId = command.getGameID();
+            String username = getUsername(command.getAuthToken());
+            saveSession(gameId, session);
             switch (command.getCommandType()) {
-                case CONNECT -> connect(command.getUsername(), ctx.session);
-                case MAKE_MOVE -> ;
-                case LEAVE -> leave(command.getUsername(), ctx.session);
-                case RESIGN -> ;
+                case CONNECT -> connect(session, username, (ConnectCommand) command);
+                case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
+                case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
+                case RESIGN -> resign(session, username, (ResignCommand) command);
             }
-        } catch (IOException ex) {
+        } catch (UnauthorizedException ex) {
+            sendMessage(session, gameId, new ErrorMessage("Error: unauthorized"));
+        } catch (Exception ex) {
             ex.printStackTrace();
+            sendMessage(session, gameId, new ErrorMessage("Error: " ex.getMessage()));
         }
+
     }
 
     @Override

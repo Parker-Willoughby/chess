@@ -19,11 +19,8 @@ public class UserGameCommand {
 
     private final Integer gameID;
 
-    private final String username;
-
-    public UserGameCommand(CommandType commandType, String username, String authToken, Integer gameID) {
+    public UserGameCommand(CommandType commandType, String authToken, Integer gameID) {
         this.commandType = commandType;
-        this.username = username;
         this.authToken = authToken;
         this.gameID = gameID;
     }
@@ -45,10 +42,6 @@ public class UserGameCommand {
 
     public Integer getGameID() {
         return gameID;
-    }
-
-    public String getUsername() {
-        return username;
     }
 
     @Override
