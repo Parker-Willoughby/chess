@@ -86,11 +86,21 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.broadcast(session, notification, command.getGameID());
     }
 
-    private void leaveGame(Session session, String username, LeaveGameCommand command) throws IOException {
+    private void leaveGame(Session session, String username, LeaveGameCommand command) throws IOException, DataAccessException {
         var message = String.format("%s has left the game", username);
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(session, notification, command.getGameID());
         connections.remove(command.getGameID(), session);
+        GameData gameData = SQLGameDAO.getGame(command.getGameID());
+        ChessGame game = gameData.game();
+        GameData newGame = new GameData(gameData.gameID(), null, null, gameData.gameName(), game);
+        if (getTeamStatus(username, command.getGameID()) == "WHITE") {
+            newGame = new GameData(gameData.gameID(), null, gameData.blackUsername(), gameData.gameName(), game);
+        }
+        else if (getTeamStatus(username, command.getGameID()) == "BLACK") {
+            newGame = new GameData(gameData.gameID(), gameData.whiteUsername(), null, gameData.gameName(), game);
+        }
+        SQLGameDAO.updateGame(newGame);
     }
 
     private void resign(Session session, String username, ResignCommand command) throws IOException, DataAccessException, InvalidMoveException {
