@@ -2,6 +2,8 @@ package server;
 
 import com.google.gson.Gson;
 import commands.UserGameCommand;
+import dataaccess.DataAccessException;
+import dataaccess.SQLAuthDAO;
 import dataaccess.UnauthorizedException;
 import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsCloseHandler;
@@ -9,6 +11,7 @@ import io.javalin.websocket.WsConnectContext;
 import io.javalin.websocket.WsConnectHandler;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
+import model.AuthData;
 import org.eclipse.jetty.websocket.api.Session;
 import messages.ServerMessage;
 
@@ -74,6 +77,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             connections.broadcast(null, notification);
         } catch (Exception ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+        }
+    }
+
+    private String getUsername(String authToken) throws DataAccessException {
+        AuthData data = SQLAuthDAO.getAuth(authToken);
+        if (data != null) {
+            return data.username();
+        }
+        else {
+            throw new UnauthorizedException("Error");
         }
     }
 }
