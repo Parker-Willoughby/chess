@@ -13,7 +13,7 @@ import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
 import model.AuthData;
 import org.eclipse.jetty.websocket.api.Session;
-import messages.ServerMessage;
+import messages.*;
 
 import java.io.IOException;
 
@@ -55,10 +55,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
-    private void connect(String username, Session session, ConnectCommand command) throws IOException {
+    private void connect(Session session, String username, ConnectCommand command) throws IOException {
         connections.add(session);
         var message = String.format("%s has joined the game", username);
-        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(session, notification);
     }
 

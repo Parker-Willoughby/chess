@@ -1,5 +1,6 @@
 package server;
 
+import messages.ServerMessage;
 import org.eclipse.jetty.websocket.api.Session;
 import webSocketMessages.Notification;
 
@@ -16,7 +17,7 @@ public class ConnectionManager {
         connections.remove(session);
     }
 
-    public void broadcast(Session excludeSession, Notification notification) throws IOException {
+    public void broadcast(Session excludeSession, ServerMessage notification) throws IOException {
         String msg = notification.toString();
         for (Session c : connections.values()) {
             if (c.isOpen()) {
