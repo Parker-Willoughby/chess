@@ -1,8 +1,10 @@
 package server;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.SQLAuthDAO;
+import dataaccess.SQLGameDAO;
 import dataaccess.UnauthorizedException;
 import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsCloseHandler;
@@ -11,9 +13,11 @@ import io.javalin.websocket.WsConnectHandler;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
 import model.AuthData;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.commands.*;
 import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
@@ -57,10 +61,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 }
             }
         } catch (UnauthorizedException ex) {
-            connections.broadcast(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error"), gameId);
+            sendMessage(session, gameId, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: unauthorized"));
         } catch (Exception ex) {
             ex.printStackTrace();
-            connections.broadcast(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + ex.getMessage()), gameId);
+            sendMessage(session, gameId, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + ex.getMessage()));
         }
 
     }
@@ -70,10 +74,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
-    private void connect(Session session, String username, ConnectCommand command) throws IOException {
+    private void connect(Session session, String username, ConnectCommand command) throws IOException, DataAccessException {
         connections.add(command.getGameID(), session);
         var message = String.format("%s has joined the game", username);
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        GameData gameData = SQLGameDAO.getGame(command.getGameID());
+        sendMessage(session, command.getGameID(), new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.game()));
         connections.broadcast(session, notification, command.getGameID());
     }
 
@@ -109,5 +115,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         else {
             throw new UnauthorizedException("Error");
         }
+    }
+
+    private void sendMessage(Session session, int gameId, ServerMessage notification) throws IOException {
+        String msg = new Gson().toJson(notification);
+        session.getRemote().sendString(msg);
     }
 }
