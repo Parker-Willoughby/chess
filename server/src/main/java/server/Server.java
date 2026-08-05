@@ -36,7 +36,12 @@ public class Server {
                 .get("/game", this::handleList)
                 .put("/game", this::handleJoin)
                 .delete("/session", this::handleLogout)
-                .delete("/db", this::handleClear);
+                .delete("/db", this::handleClear)
+                .ws("/ws", ws -> {
+                    ws.onConnect(webSocketHandler);
+                    ws.onMessage(webSocketHandler);
+                    ws.onClose(webSocketHandler);
+                });
         return javalin.port();
     }
 
