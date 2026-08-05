@@ -56,10 +56,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void connect(Session session, String username, ConnectCommand command) throws IOException {
-        connections.add(session);
+        connections.add(command.getGameID(), session);
         var message = String.format("%s has joined the game", username);
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-        connections.broadcast(session, notification);
+        connections.broadcast(session, notification, command.getGameID());
     }
 
     private void leave(String visitorName, Session session) throws IOException {
