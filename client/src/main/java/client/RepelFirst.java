@@ -28,6 +28,7 @@ public class RepelFirst implements NotificationHandler {
     private final WebSocketFacade ws;
     private String userColor;
     private String authToken;
+    private ChessBoard currentBoard;
 
     public RepelFirst(String serverUrl) throws InvalidMoveException {
         server = new ServerFacade(serverUrl);
@@ -79,7 +80,9 @@ public class RepelFirst implements NotificationHandler {
     }
 
     public void loadGame(LoadGameMessage message) {
-        buildBoard(message.getGame().getBoard(), userColor);
+        currentBoard = message.getGame().getBoard();
+        System.out.println("\n" + buildBoard(userColor));
+        printPrompt();
     }
 
     public String eval(String input) {
@@ -96,7 +99,7 @@ public class RepelFirst implements NotificationHandler {
                 case "join" -> playGame(params);
                 case "logout" -> logout();
                 case "observe" -> observeGame(params);
-//                case "redraw" -> redraw();
+                case "redraw" -> redraw();
 //                case "leave" -> leave();
 //                case "move" -> move(params);
 //                case "resign" -> resign();
@@ -113,8 +116,9 @@ public class RepelFirst implements NotificationHandler {
         assertSignedOut();
         if (params.length == 2) {
             visitorName = params[0];
-            server.login(new LoginRequest(params[0], params[1]));
+            RegisterResult result = server.login(new LoginRequest(params[0], params[1]));
             state = State.SIGNEDIN;
+            authToken = result.authToken();
             return String.format("You are logged in as %s.", visitorName);
         }
         throw new InvalidMoveException("Wrong number of arguments");
@@ -124,8 +128,9 @@ public class RepelFirst implements NotificationHandler {
         assertSignedOut();
         if (params.length == 3) {
             visitorName = params[0];
-            server.register(new UserData(params[0], params[1], params[2]));
+            RegisterResult result = server.register(new UserData(params[0], params[1], params[2]));
             state = State.SIGNEDIN;
+            authToken = result.authToken();
             return String.format("%s is registered and logged in.", visitorName);
         }
         throw new InvalidMoveException("Wrong number of arguments");
@@ -178,17 +183,17 @@ public class RepelFirst implements NotificationHandler {
                 if (id < 1 || id > 100 || gameIDs[id - 1] == 0) {
                     throw new InvalidMoveException("No game exists. \n" + "If you think one should exist, try list first");
                 }
-                authToken = server.join(new JoinRequest(params[1].toUpperCase(), gameIDs[Integer.parseInt(params[0]) - 1]));
+                server.join(new JoinRequest(params[1].toUpperCase(), gameIDs[Integer.parseInt(params[0]) - 1]));
                 ws.connect(authToken, gameIDs[Integer.parseInt(params[0]) - 1]);
                 state = State.INGAME;
                 userColor = params[1].toUpperCase();
-                String board = " ";
-                if (params[1].equalsIgnoreCase("WHITE")) {
-                    board = buildBoard(new ChessGame().getBoard(), "WHITE");
-                } else if (params[1].equalsIgnoreCase("BLACK")) {
-                    board = buildBoard(new ChessGame().getBoard(), "BLACK");
-                }
-                return "Game joined" + "\n" + board;
+//                String board = " ";
+//                if (params[1].equalsIgnoreCase("WHITE")) {
+//                    board = buildBoard(new ChessGame().getBoard(), "WHITE");
+//                } else if (params[1].equalsIgnoreCase("BLACK")) {
+//                    board = buildBoard(new ChessGame().getBoard(), "BLACK");
+//                }
+                return "Game joined" + "\n";
             }
             throw new InvalidMoveException("Incorrect or Invalid player color");
         }
@@ -210,9 +215,14 @@ public class RepelFirst implements NotificationHandler {
             ws.connect(authToken, gameIDs[Integer.parseInt(params[0]) - 1]);
             state = State.INGAME;
             userColor = "WHITE";
-            return buildBoard(new ChessGame().getBoard(), "WHITE");
+            return "You are observing";
         }
         throw new InvalidMoveException("Incorrect Number of Arguments");
+    }
+
+    public String redraw() throws InvalidMoveException {
+        assertInGame();
+        return buildBoard(userColor);
     }
 
     public String logout() throws InvalidMoveException {
@@ -258,15 +268,25 @@ public class RepelFirst implements NotificationHandler {
         if (state == State.SIGNEDOUT) {
             throw new InvalidMoveException("You must sign in");
         }
+        else if (state == State.INGAME) {
+            throw new InvalidMoveException("Leave current game first");
+        }
     }
 
     private void assertSignedOut() throws InvalidMoveException {
-        if (state == State.SIGNEDIN) {
+        if (state != State.SIGNEDOUT) {
             throw new InvalidMoveException("You are already signed in");
         }
     }
 
-    private String buildBoard(ChessBoard board, String color) {
+    private void assertInGame() throws InvalidMoveException {
+        if (state != State.INGAME) {
+            throw new InvalidMoveException("You have not joined a game");
+        }
+    }
+
+    private String buildBoard(String color) {
+        ChessBoard board = currentBoard;
         String printBoard = EscapeSequences.SET_BG_COLOR_LIGHT_GREY + EscapeSequences.SET_TEXT_COLOR_BLACK;
         if (color == "WHITE") {
             printBoard += "    a  b  c  d  e  f  g  h    ";

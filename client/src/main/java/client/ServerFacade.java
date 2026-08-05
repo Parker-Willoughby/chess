@@ -49,11 +49,10 @@ public class ServerFacade {
         return handleResponse(response, ListResult.class);
     }
 
-    public String join(JoinRequest join) throws InvalidMoveException {
+    public void join(JoinRequest join) throws InvalidMoveException {
         var request = buildRequest("PUT", "/game", join, authToken);
         var response = sendRequest(request);
         handleResponse(response, null);
-        return authToken;
     }
 
     public void logout() throws InvalidMoveException {
