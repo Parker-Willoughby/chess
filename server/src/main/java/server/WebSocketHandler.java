@@ -2,6 +2,7 @@ package server;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.SQLAuthDAO;
@@ -101,8 +102,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     public void makeMove(Session session, String username, MakeMoveCommand command) throws DataAccessException {
         try {
+            if (getTeamStatus(username, command.getGameID()) == "OBSERVER") {
+                throw new InvalidMoveException("Error: Not a valid player");
+            }
             GameData gameData = SQLGameDAO.getGame(command.getGameID());
             ChessGame game = gameData.game();
+            if (getTeamStatus(username, command.getGameID()) != game.getTeamTurn().toString()) {
+                throw new InvalidMoveException("Error: Wrong turn");
+            }
             ChessMove move = command.getMove();
             game.makeMove(move);
             GameData newGame = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
