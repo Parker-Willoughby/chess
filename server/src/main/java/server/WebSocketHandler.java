@@ -62,20 +62,27 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.broadcast(session, notification, command.getGameID());
     }
 
-    private void leave(String visitorName, Session session) throws IOException {
-        var message = String.format("%s left the shop", visitorName);
-        var notification = new Notification(Notification.Type.DEPARTURE, message);
-        connections.broadcast(session, notification);
-        connections.remove(session);
+    private void leaveGame(Session session, String username, LeaveGameCommand command) throws IOException {
+        var message = String.format("%s has left the game", username);
+        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        connections.broadcast(session, notification, command.getGameID());
+        connections.remove(command.getGameID(), session);
     }
 
-    public void makeNoise(String petName, String sound) throws ResponseException {
+    private void resign(Session session, String username, ResignCommand command) throws IOException {
+        var message = String.format("%s has left the game", username);
+        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        connections.broadcast(session, notification, command.getGameID());
+        connections.remove(command.getGameID(), session);
+    }
+
+    public void makeMove(Session session, String username, MakeMoveCommand command) throws DataAccessException {
         try {
-            var message = String.format("%s says %s", petName, sound);
-            var notification = new Notification(Notification.Type.NOISE, message);
-            connections.broadcast(null, notification);
+            //var message = String.format("%s says %s", petName, sound);
+            //var notification = new Notification(Notification.Type.NOISE, message);
+            //connections.broadcast(null, notification);
         } catch (Exception ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+            throw new DataAccessException("Error");
         }
     }
 
