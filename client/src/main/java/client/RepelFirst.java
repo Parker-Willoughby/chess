@@ -28,7 +28,7 @@ public class RepelFirst implements NotificationHandler {
     private final WebSocketFacade ws;
     private String userColor;
     private String authToken;
-    private ChessBoard currentBoard;
+    private ChessGame currentGame;
 
     public RepelFirst(String serverUrl) throws InvalidMoveException {
         server = new ServerFacade(serverUrl);
@@ -80,8 +80,8 @@ public class RepelFirst implements NotificationHandler {
     }
 
     public void loadGame(LoadGameMessage message) {
-        currentBoard = message.getGame().getBoard();
-        System.out.println("\n" + buildBoard());
+        currentGame = message.getGame();
+        System.out.println("\n" + buildBoard(null));
         printPrompt();
     }
 
@@ -103,7 +103,7 @@ public class RepelFirst implements NotificationHandler {
                 case "leave" -> leave();
                 case "move" -> move(params);
                 case "resign" -> resign();
-//                case "highlight" -> highlight(params);
+                case "highlight" -> highlight(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -218,7 +218,7 @@ public class RepelFirst implements NotificationHandler {
         assertInGame();
         ws.leave();
         state = State.SIGNEDIN;
-        currentBoard = null;
+        currentGame = null;
         return "You have left the game";
     }
 
@@ -252,7 +252,14 @@ public class RepelFirst implements NotificationHandler {
 
     public String redraw() throws InvalidMoveException {
         assertInGame();
-        return buildBoard();
+        return buildBoard(null);
+    }
+
+    public String highlight(String... params) throws InvalidMoveException {
+        assertInGame();
+        int row = Integer.parseInt(params[0]);
+        int col = Integer.parseInt(params[1]);
+        return buildBoard(new ChessPosition(row, col));
     }
 
     public String logout() throws InvalidMoveException {
@@ -316,8 +323,14 @@ public class RepelFirst implements NotificationHandler {
         }
     }
 
-    private String buildBoard() {
-        ChessBoard board = currentBoard;
+    private String buildBoard(ChessPosition highlight) {
+        Collection<ChessPosition> toHighlight = new ArrayList<>();
+        if (highlight != null) {
+            for (ChessMove move: currentGame.validMoves(highlight)) {
+                toHighlight.add(move.getEndPosition());
+            }
+        }
+        ChessBoard board = currentGame.getBoard();
         String printBoard = EscapeSequences.SET_BG_COLOR_LIGHT_GREY + EscapeSequences.SET_TEXT_COLOR_BLACK;
         if (userColor.equals("WHITE")) {
             printBoard += "    a  b  c  d  e  f  g  h    ";
@@ -336,7 +349,7 @@ public class RepelFirst implements NotificationHandler {
             }
             for (int j = 0; j < 10; j++) {
                 if (j > 0 && j < 9) {
-                    if (lastColor == "WHITE") {
+                    if (lastColor.equals("WHITE")) {
                         printBoard += EscapeSequences.SET_BG_COLOR_BLACK;
                         lastColor = "BLACK";
                     }
@@ -347,9 +360,15 @@ public class RepelFirst implements NotificationHandler {
                     ChessPiece piece;
                     if (userColor.equals("WHITE")) {
                         piece = board.getPiece(new ChessPosition(9 - i, j));
+                        if (toHighlight.contains(new ChessPosition(9 - i, j))) {
+                            printBoard += EscapeSequences.SET_BG_COLOR_YELLOW;
+                        }
                     }
                     else {
                         piece = board.getPiece(new ChessPosition(i, 9 - j));
+                        if (toHighlight.contains(new ChessPosition(i, 9 - j))) {
+                            printBoard += EscapeSequences.SET_BG_COLOR_YELLOW;
+                        }
                     }
                     if (piece == null) {
                         printBoard += "   ";
