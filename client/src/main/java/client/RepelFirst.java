@@ -24,6 +24,7 @@ public class RepelFirst implements NotificationHandler {
     private int[] gameIDs = new int[100];
     private int currentIndex = 0;
     private final WebSocketFacade ws;
+    private String userColor;
 
     public RepelFirst(String serverUrl) throws InvalidMoveException {
         server = new ServerFacade(serverUrl);
@@ -83,6 +84,11 @@ public class RepelFirst implements NotificationHandler {
                 case "join" -> playGame(params);
                 case "logout" -> logout();
                 case "observe" -> observeGame(params);
+                case "redraw" -> redraw();
+                case "leave" -> leave();
+                case "move" -> move(params);
+                case "resign" -> resign();
+                case "highlight" -> highlight(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -161,6 +167,8 @@ public class RepelFirst implements NotificationHandler {
                     throw new InvalidMoveException("No game exists. \n" + "If you think one should exist, try list first");
                 }
                 server.join(new JoinRequest(params[1].toUpperCase(), gameIDs[Integer.parseInt(params[0]) - 1]));
+                state = State.INGAME;
+                userColor = params[1].toUpperCase();
                 String board = " ";
                 if (params[1].equalsIgnoreCase("WHITE")) {
                     board = buildBoard(new ChessGame().getBoard(), "WHITE");
@@ -186,6 +194,8 @@ public class RepelFirst implements NotificationHandler {
             if (id < 1 || id > 100 || gameIDs[id - 1] == 0) {
                 throw new InvalidMoveException("No game exists. \n" + "If you think one should exist, try list first");
             }
+            state = State.INGAME;
+            userColor = "WHITE";
             return buildBoard(new ChessGame().getBoard(), "WHITE");
         }
         throw new InvalidMoveException("Incorrect Number of Arguments");
@@ -208,15 +218,26 @@ public class RepelFirst implements NotificationHandler {
                     - quit (quits program)
                     """ + EscapeSequences.RESET_TEXT_COLOR;
         }
+        else if (state == State.SIGNEDIN) {
+            return EscapeSequences.SET_TEXT_COLOR_YELLOW +
+                    """
+                            - help
+                            - list (lists all games)
+                            - create <game name> (creates a new game)
+                            - join <Num> <WHITE|BLACK> (joins a game)
+                            - observe <Num> (observes an active game)
+                            - logout (logs out)
+                            """ + EscapeSequences.RESET_TEXT_COLOR;
+        }
         return EscapeSequences.SET_TEXT_COLOR_YELLOW +
                 """
-                - help
-                - list (lists all games)
-                - create <game name> (creates a new game)
-                - join <Num> <WHITE|BLACK> (joins a game)
-                - observe <Num> (observes an active game)
-                - logout (logs out)
-                """+ EscapeSequences.RESET_TEXT_COLOR;
+                        - help
+                        - redraw (redraws current board)
+                        - leave (leaves game)
+                        - move <Start Row> <Start Col> <End Row> <End Col> (makes a move)
+                        - resign (resigns game)
+                        - highlight <Piece Row> <Piece Col> (shows legal moves)
+                        """ + EscapeSequences.RESET_TEXT_COLOR;
     }
 
     private void assertSignedIn() throws InvalidMoveException {
