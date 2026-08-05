@@ -7,12 +7,12 @@ import io.javalin.http.Context;
 import model.UserData;
 import records.*;
 import service.*;
-
 import java.util.Map;
 
 public class Server {
 
     private final Javalin javalin;
+    private final WebSocketHandler webSocketHandler;
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));

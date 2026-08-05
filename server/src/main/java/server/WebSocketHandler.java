@@ -1,7 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
-import exception.ResponseException;
+import commands.UserGameCommand;
 import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsCloseHandler;
 import io.javalin.websocket.WsConnectContext;
@@ -9,8 +9,7 @@ import io.javalin.websocket.WsConnectHandler;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
 import org.eclipse.jetty.websocket.api.Session;
-import webSocketMessages.Action;
-import webSocketMessages.Notification;
+import messages.ServerMessage;
 
 import java.io.IOException;
 
@@ -26,10 +25,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @Override
     public void handleMessage(WsMessageContext ctx) {
         try {
-            Action action = new Gson().fromJson(ctx.message(), Action.class);
-            switch (action.type()) {
-                case ENTER -> enter(action.visitorName(), ctx.session);
-                case EXIT -> exit(action.visitorName(), ctx.session);
+            UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
+            switch (command.getCommandType()) {
+                case CONNECT -> connect(command.getUsername(), ctx.session);
+                case MAKE_MOVE -> ;
             }
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -41,7 +40,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
-    private void enter(String visitorName, Session session) throws IOException {
+    private void connect(String visitorName, Session session) throws IOException {
         connections.add(session);
         var message = String.format("%s is in the shop", visitorName);
         var notification = new Notification(Notification.Type.ARRIVAL, message);
