@@ -23,13 +23,14 @@ public class ConnectionManager {
         }
     }
 
-    public void remove(Session session) {
-        connections.remove(session);
+    public void remove(int gameId, Session session) {
+        connections.get(gameId).remove(session);
     }
 
     public void broadcast(Session excludeSession, ServerMessage notification, int gameId) throws IOException {
         String msg = notification.toString();
-        for (Session c : connections.values()) {
+        Set<Session> sets = connections.get(gameId);
+        for (Session c : sets) {
             if (c.isOpen()) {
                 if (!c.equals(excludeSession)) {
                     c.getRemote().sendString(msg);
