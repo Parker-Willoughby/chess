@@ -81,7 +81,7 @@ public class RepelFirst implements NotificationHandler {
 
     public void loadGame(LoadGameMessage message) {
         currentBoard = message.getGame().getBoard();
-        System.out.println("\n" + buildBoard(userColor));
+        System.out.println("\n" + buildBoard());
         printPrompt();
     }
 
@@ -100,7 +100,7 @@ public class RepelFirst implements NotificationHandler {
                 case "logout" -> logout();
                 case "observe" -> observeGame(params);
                 case "redraw" -> redraw();
-//                case "leave" -> leave();
+                case "leave" -> leave();
 //                case "move" -> move(params);
 //                case "resign" -> resign();
 //                case "highlight" -> highlight(params);
@@ -187,12 +187,6 @@ public class RepelFirst implements NotificationHandler {
                 ws.connect(authToken, gameIDs[Integer.parseInt(params[0]) - 1]);
                 state = State.INGAME;
                 userColor = params[1].toUpperCase();
-//                String board = " ";
-//                if (params[1].equalsIgnoreCase("WHITE")) {
-//                    board = buildBoard(new ChessGame().getBoard(), "WHITE");
-//                } else if (params[1].equalsIgnoreCase("BLACK")) {
-//                    board = buildBoard(new ChessGame().getBoard(), "BLACK");
-//                }
                 return "Game joined" + "\n";
             }
             throw new InvalidMoveException("Incorrect or Invalid player color");
@@ -220,15 +214,24 @@ public class RepelFirst implements NotificationHandler {
         throw new InvalidMoveException("Incorrect Number of Arguments");
     }
 
+    public String leave() throws InvalidMoveException {
+        assertInGame();
+        ws.leave();
+        state = State.SIGNEDIN;
+        currentBoard = null;
+        return "You have left the game";
+    }
+
     public String redraw() throws InvalidMoveException {
         assertInGame();
-        return buildBoard(userColor);
+        return buildBoard();
     }
 
     public String logout() throws InvalidMoveException {
         assertSignedIn();
         server.logout();
         state = State.SIGNEDOUT;
+        authToken = null;
         return "You have signed out";
     }
 
@@ -285,10 +288,10 @@ public class RepelFirst implements NotificationHandler {
         }
     }
 
-    private String buildBoard(String color) {
+    private String buildBoard() {
         ChessBoard board = currentBoard;
         String printBoard = EscapeSequences.SET_BG_COLOR_LIGHT_GREY + EscapeSequences.SET_TEXT_COLOR_BLACK;
-        if (color == "WHITE") {
+        if (userColor.equals("WHITE")) {
             printBoard += "    a  b  c  d  e  f  g  h    ";
         }
         else {
@@ -314,11 +317,11 @@ public class RepelFirst implements NotificationHandler {
                         lastColor = "WHITE";
                     }
                     ChessPiece piece;
-                    if (color == "WHITE") {
+                    if (userColor.equals("WHITE")) {
                         piece = board.getPiece(new ChessPosition(9 - i, j));
                     }
                     else {
-                        piece = board.getPiece(new ChessPosition(i, j));
+                        piece = board.getPiece(new ChessPosition(i, 9 - j));
                     }
                     if (piece == null) {
                         printBoard += "   ";
@@ -351,7 +354,7 @@ public class RepelFirst implements NotificationHandler {
                     }
                 }
                 else {
-                    if (color == "WHITE") {
+                    if (userColor.equals("WHITE")) {
                         printBoard += EscapeSequences.SET_BG_COLOR_LIGHT_GREY + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + (9 - i) + " ";
                         if (j == 9) {
                             printBoard += EscapeSequences.RESET_BG_COLOR + "\n";
@@ -367,7 +370,7 @@ public class RepelFirst implements NotificationHandler {
             }
         }
         printBoard += EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
-        if (color == "WHITE") {
+        if (userColor.equals("WHITE")) {
             printBoard += "    a  b  c  d  e  f  g  h    ";
         }
         else {
