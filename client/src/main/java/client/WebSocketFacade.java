@@ -1,9 +1,10 @@
 package client;
 
+import chess.ChessMove;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
-import exception.ResponseException;
-import webSocketMessages.Action;
-import webSocketMessages.Notification;
+import websocket.commands.*;
+import websocket.messages.*;
 
 import jakarta.websocket.*;
 
@@ -15,8 +16,10 @@ public class WebSocketFacade extends Endpoint {
 
     Session session;
     NotificationHandler notificationHandler;
+    String authToken;
+    int gameId;
 
-    public WebSocketFacade(String url, NotificationHandler notificationHandler) throws ResponseException {
+    public WebSocketFacade(String url, NotificationHandler notificationHandler) throws InvalidMoveException {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
@@ -25,40 +28,49 @@ public class WebSocketFacade extends Endpoint {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
 
-            //set message handler
+
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    Notification notification = new Gson().fromJson(message, Notification.class);
+                    ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
                     notificationHandler.notify(notification);
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+            throw new InvalidMoveException("Error");
         }
     }
 
-    //Endpoint requires this method, but you don't have to do anything
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void enterPetShop(String visitorName) throws ResponseException {
+    public void connect(String authToken, int gameId) throws InvalidMoveException {
         try {
-            var action = new Action(Action.Type.ENTER, visitorName);
-            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+            var connect = new ConnectCommand(UserGameCommand.CommandType.CONNECT, authToken, gameId);
+            this.session.getBasicRemote().sendText(new Gson().toJson(connect));
+            this.authToken = authToken;
+            this.gameId = gameId;
         } catch (IOException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+            throw new InvalidMoveException("Error");
         }
     }
 
-    public void leavePetShop(String visitorName) throws ResponseException {
+    public void leave() throws InvalidMoveException {
         try {
-            var action = new Action(Action.Type.EXIT, visitorName);
-            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+            var leave = new LeaveGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameId);
+            this.session.getBasicRemote().sendText(new Gson().toJson(leave));
         } catch (IOException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+            throw new InvalidMoveException("Error");
         }
     }
 
+    public void makeMove(ChessMove move) throws InvalidMoveException {
+        try {
+            var moveCommand = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameId, move);
+            this.session.getBasicRemote().sendText(new Gson().toJson(moveCommand));
+        } catch (IOException ex) {
+            throw new InvalidMoveException("Error");
+        }
+    }
 }
