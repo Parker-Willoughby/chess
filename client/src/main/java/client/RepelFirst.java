@@ -14,6 +14,8 @@ import records.*;
 import records.GameInfo;
 import records.ListResult;
 import ui.EscapeSequences;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
@@ -66,12 +68,18 @@ public class RepelFirst implements NotificationHandler {
         }
     }
 
-    public void notify(ServerMessage notification) {
-        if (notification.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
-            notification = new Gson.fromJson()
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + notification.getMessage());
-        }
+    public void notify(NotificationMessage notification) {
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + notification.getMessage());
         printPrompt();
+    }
+
+    public void error(ErrorMessage error) {
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + error.getErrorMessage());
+        printPrompt();
+    }
+
+    public void loadGame(LoadGameMessage message) {
+        buildBoard(message.getGame().getBoard(), userColor);
     }
 
     public String eval(String input) {
@@ -88,11 +96,11 @@ public class RepelFirst implements NotificationHandler {
                 case "join" -> playGame(params);
                 case "logout" -> logout();
                 case "observe" -> observeGame(params);
-                case "redraw" -> redraw();
-                case "leave" -> leave();
-                case "move" -> move(params);
-                case "resign" -> resign();
-                case "highlight" -> highlight(params);
+//                case "redraw" -> redraw();
+//                case "leave" -> leave();
+//                case "move" -> move(params);
+//                case "resign" -> resign();
+//                case "highlight" -> highlight(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -199,6 +207,7 @@ public class RepelFirst implements NotificationHandler {
             if (id < 1 || id > 100 || gameIDs[id - 1] == 0) {
                 throw new InvalidMoveException("No game exists. \n" + "If you think one should exist, try list first");
             }
+            ws.connect(authToken, gameIDs[Integer.parseInt(params[0]) - 1]);
             state = State.INGAME;
             userColor = "WHITE";
             return buildBoard(new ChessGame().getBoard(), "WHITE");

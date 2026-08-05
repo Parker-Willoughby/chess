@@ -39,11 +39,11 @@ public class WebSocketFacade extends Endpoint {
                     }
                     else if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
                         ErrorMessage error = new Gson().fromJson(message, ErrorMessage.class);
-                        notificationHandler.notify(error);
+                        notificationHandler.error(error);
                     }
                     else if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
                         LoadGameMessage load = new Gson().fromJson(message, LoadGameMessage.class);
-                        notificationHandler.notify(load);
+                        notificationHandler.loadGame(load);
                     }
                 }
             });
