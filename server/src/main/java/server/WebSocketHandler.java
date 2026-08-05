@@ -1,7 +1,6 @@
 package server;
 
 import com.google.gson.Gson;
-import commands.*;
 import dataaccess.DataAccessException;
 import dataaccess.SQLAuthDAO;
 import dataaccess.UnauthorizedException;
@@ -13,7 +12,10 @@ import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
 import model.AuthData;
 import org.eclipse.jetty.websocket.api.Session;
-import messages.*;
+import websocket.commands.*;
+import websocket.messages.ErrorMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 
@@ -27,25 +29,38 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     @Override
-    public void handleMessage(WsMessageContext ctx) {
+    public void handleMessage(WsMessageContext ctx) throws IOException{
         int gameId = -1;
         Session session = ctx.session;
+        Gson deserialize = new Gson();
 
         try {
-            UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
-            gameId = command.getGameID();
-            String username = getUsername(command.getAuthToken());
-            switch (command.getCommandType()) {
-                case CONNECT -> connect(session, username, (ConnectCommand) command);
-                case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
-                case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
-                case RESIGN -> resign(session, username, (ResignCommand) command);
+            UserGameCommand firstCommand = deserialize.fromJson(ctx.message(), UserGameCommand.class);
+            gameId = firstCommand.getGameID();
+            String username = getUsername(firstCommand.getAuthToken());
+            switch (firstCommand.getCommandType()) {
+                case CONNECT ->  {
+                    ConnectCommand command = deserialize.fromJson(ctx.message(), ConnectCommand.class);
+                    connect(session, username, (ConnectCommand) command);
+                }
+                case MAKE_MOVE -> {
+                    MakeMoveCommand command = deserialize.fromJson(ctx.message(), MakeMoveCommand.class);
+                    makeMove(session, username, (MakeMoveCommand) command);
+                }
+                case LEAVE -> {
+                    LeaveGameCommand command = deserialize.fromJson(ctx.message(), LeaveGameCommand.class);
+                    leaveGame(session, username, (LeaveGameCommand) command);
+                }
+                case RESIGN -> {
+                    ResignCommand command = deserialize.fromJson(ctx.message(), ResignCommand.class);
+                    resign(session, username, (ResignCommand) command);
+                }
             }
         } catch (UnauthorizedException ex) {
-            sendMessage(session, gameId, new ErrorMessage("Error: unauthorized"));
+            connections.broadcast(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error"), gameId);
         } catch (Exception ex) {
             ex.printStackTrace();
-            sendMessage(session, gameId, new ErrorMessage("Error: " ex.getMessage()));
+            connections.broadcast(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + ex.getMessage()), gameId);
         }
 
     }

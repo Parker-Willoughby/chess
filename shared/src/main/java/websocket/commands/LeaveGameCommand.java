@@ -1,4 +1,4 @@
-package commands;
+package websocket.commands;
 
 public class LeaveGameCommand extends UserGameCommand {
     public LeaveGameCommand(UserGameCommand.CommandType commandType, String authToken, Integer gameID) {

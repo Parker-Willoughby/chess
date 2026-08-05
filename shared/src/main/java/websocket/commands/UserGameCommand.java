@@ -1,7 +1,4 @@
-package commands;
-
-import chess.ChessMove;
-import model.AuthData;
+package websocket.commands;
 
 import java.util.Objects;
 
