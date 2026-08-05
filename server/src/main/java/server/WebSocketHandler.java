@@ -93,9 +93,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void resign(Session session, String username, ResignCommand command) throws IOException {
-        var message = String.format("%s has left the game", username);
+        var message = String.format("%s has resigned", username);
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-        connections.broadcast(session, notification, command.getGameID());
+        connections.broadcast(null, notification, command.getGameID());
         connections.remove(command.getGameID(), session);
     }
 
@@ -109,6 +109,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             SQLGameDAO.updateGame(newGame);
             connections.broadcast(null, new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game), command.getGameID());
             connections.broadcast(session, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "A move was made"), command.getGameID());
+            if (game.isInCheckmate())
         } catch (Exception ex) {
             throw new DataAccessException("Error");
         }
@@ -127,5 +128,18 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private void sendMessage(Session session, int gameId, ServerMessage notification) throws IOException {
         String msg = new Gson().toJson(notification);
         session.getRemote().sendString(msg);
+    }
+
+    private String getTeamStatus(String username, int gameId) throws DataAccessException{
+        GameData data = SQLGameDAO.getGame(gameId);
+        if (data != null && username.equals(data.whiteUsername())) {
+            return "WHITE";
+        }
+        else if (data != null && username.equals(data.blackUsername())) {
+            return "BLACK";
+        }
+        else {
+            return "OBSERVER";
+        }
     }
 }
