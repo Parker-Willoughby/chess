@@ -224,13 +224,39 @@ public class RepelFirst implements NotificationHandler {
 
     public String move(String... params) throws InvalidMoveException {
         assertInGame();
-        int startRow = Integer.parseInt(params[0]);
-        int startCol = Integer.parseInt(params[1]);
-        int endRow = Integer.parseInt(params[2]);
-        int endCol = Integer.parseInt(params[3]);
-        ChessMove move = new ChessMove(new ChessPosition(startRow, startCol), new ChessPosition(endRow, endCol), null);
-        ws.makeMove(move);
-        return " ";
+        if (params.length == 5) {
+            int startRow;
+            int startCol;
+            int endRow;
+            int endCol;
+            try {
+                startRow = Integer.parseInt(params[0]);
+                startCol = Integer.parseInt(params[1]);
+                endRow = Integer.parseInt(params[2]);
+                endCol = Integer.parseInt(params[3]);
+            } catch (NumberFormatException e) {
+                throw new InvalidMoveException("Error: rows and columns must be numbers");
+            }
+
+            ChessPiece.PieceType promotionPiece = null;
+            if (params[4].equalsIgnoreCase("KNIGHT")) {
+                promotionPiece = ChessPiece.PieceType.KNIGHT;
+            } else if (params[4].equalsIgnoreCase("BISHOP")) {
+                promotionPiece = ChessPiece.PieceType.BISHOP;
+            } else if (params[4].equalsIgnoreCase("ROOK")) {
+                promotionPiece = ChessPiece.PieceType.ROOK;
+            } else if (params[4].equalsIgnoreCase("QUEEN")) {
+                promotionPiece = ChessPiece.PieceType.QUEEN;
+            } else if (!params[4].equalsIgnoreCase("NONE")) {
+                throw new InvalidMoveException("Please input a valid piece for promotion piece");
+            }
+            ChessMove move = new ChessMove(new ChessPosition(startRow, startCol), new ChessPosition(endRow, endCol), promotionPiece);
+            ws.makeMove(move);
+            return " ";
+        }
+        else {
+            throw new InvalidMoveException("Error: wrong number of parameters");
+        }
     }
 
     public String resign() throws InvalidMoveException {
@@ -296,7 +322,8 @@ public class RepelFirst implements NotificationHandler {
                         - help
                         - redraw (redraws current board)
                         - leave (leaves game)
-                        - move <Start Row> <Start Col> <End Row> <End Col> (makes a move)
+                        - move <Start Row> <Start Col> <End Row> <End Col> <NONE|KNIGHT|BISHOP|ROOK|QUEEN> \n
+                               (makes a move and when applicable promotes pawn)
                         - resign (resigns game)
                         - highlight <Piece Row> <Piece Col> (shows legal moves)
                         """ + EscapeSequences.RESET_TEXT_COLOR;
