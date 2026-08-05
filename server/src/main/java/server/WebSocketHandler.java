@@ -1,6 +1,7 @@
 package server;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.SQLAuthDAO;
@@ -15,6 +16,7 @@ import io.javalin.websocket.WsMessageHandler;
 import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
+import records.GameInfo;
 import websocket.commands.*;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -99,9 +101,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     public void makeMove(Session session, String username, MakeMoveCommand command) throws DataAccessException {
         try {
-            //var message = String.format("%s says %s", petName, sound);
-            //var notification = new Notification(Notification.Type.NOISE, message);
-            //connections.broadcast(null, notification);
+            GameData gameData = SQLGameDAO.getGame(command.getGameID());
+            ChessGame game = gameData.game();
+            ChessMove move = command.getMove();
+            game.makeMove(move);
+            GameData newGame = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
+            SQLGameDAO.updateGame(newGame);
+            connections.broadcast(null, new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game), command.getGameID());
+            connections.broadcast(session, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "A move was made"), command.getGameID());
         } catch (Exception ex) {
             throw new DataAccessException("Error");
         }
