@@ -101,7 +101,7 @@ public class RepelFirst implements NotificationHandler {
                 case "observe" -> observeGame(params);
                 case "redraw" -> redraw();
                 case "leave" -> leave();
-//                case "move" -> move(params);
+                case "move" -> move(params);
                 case "resign" -> resign();
 //                case "highlight" -> highlight(params);
                 case "quit" -> "quit";
@@ -220,6 +220,17 @@ public class RepelFirst implements NotificationHandler {
         state = State.SIGNEDIN;
         currentBoard = null;
         return "You have left the game";
+    }
+
+    public String move(String... params) throws InvalidMoveException {
+        assertInGame();
+        int startRow = Integer.parseInt(params[0]);
+        int startCol = Integer.parseInt(params[1]);
+        int endRow = Integer.parseInt(params[2]);
+        int endCol = Integer.parseInt(params[3]);
+        ChessMove move = new ChessMove(new ChessPosition(startRow, startCol), new ChessPosition(endRow, endCol), null);
+        ws.makeMove(move);
+        return " ";
     }
 
     public String resign() throws InvalidMoveException {
