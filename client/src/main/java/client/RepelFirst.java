@@ -25,6 +25,7 @@ public class RepelFirst implements NotificationHandler {
     private int currentIndex = 0;
     private final WebSocketFacade ws;
     private String userColor;
+    private String authToken;
 
     public RepelFirst(String serverUrl) throws InvalidMoveException {
         server = new ServerFacade(serverUrl);
@@ -65,8 +66,11 @@ public class RepelFirst implements NotificationHandler {
         }
     }
 
-    public void notify(NotificationMessage notification) {
-        System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + notification.getMessage());
+    public void notify(ServerMessage notification) {
+        if (notification.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+            notification = new Gson.fromJson()
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + notification.getMessage());
+        }
         printPrompt();
     }
 
@@ -166,7 +170,8 @@ public class RepelFirst implements NotificationHandler {
                 if (id < 1 || id > 100 || gameIDs[id - 1] == 0) {
                     throw new InvalidMoveException("No game exists. \n" + "If you think one should exist, try list first");
                 }
-                server.join(new JoinRequest(params[1].toUpperCase(), gameIDs[Integer.parseInt(params[0]) - 1]));
+                authToken = server.join(new JoinRequest(params[1].toUpperCase(), gameIDs[Integer.parseInt(params[0]) - 1]));
+                ws.connect(authToken, gameIDs[Integer.parseInt(params[0]) - 1]);
                 state = State.INGAME;
                 userColor = params[1].toUpperCase();
                 String board = " ";
