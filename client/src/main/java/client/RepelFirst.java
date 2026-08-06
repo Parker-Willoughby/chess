@@ -403,7 +403,7 @@ public class RepelFirst implements NotificationHandler {
                     printBoard += printBoardHelper(i, j, board, toHighlight);
                 }
                 else {
-                    printBoard += printBoardHelper2(j);
+                    printBoard += printBoardHelper2(i, j);
                 }
             }
         }
@@ -418,7 +418,7 @@ public class RepelFirst implements NotificationHandler {
         return printBoard;
     }
 
-    public String printBoardHelper2(int j) {
+    public String printBoardHelper2(int i, int j) {
         String printBoard = "";
         if (userColor.equals("WHITE")) {
             printBoard += EscapeSequences.SET_BG_COLOR_LIGHT_GREY + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + (9 - i) + " ";
