@@ -242,7 +242,12 @@ public class RepelFirst implements NotificationHandler {
             } catch (NumberFormatException e) {
                 throw new InvalidMoveException("Error: rows and columns must be numbers");
             }
-
+            if (startRow > 8 || startCol > 8 || endRow > 8 || endCol > 8) {
+                throw new InvalidMoveException("Error: move is out of bounds");
+            }
+            if (startRow < 1 || startCol < 1 || endRow < 1 || endCol < 1) {
+                throw new InvalidMoveException("Error: move is out of bounds");
+            }
             ChessPiece.PieceType promotionPiece = null;
             if (params[4].equalsIgnoreCase("KNIGHT")) {
                 promotionPiece = ChessPiece.PieceType.KNIGHT;
