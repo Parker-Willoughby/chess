@@ -113,7 +113,7 @@ public class ChessGame {
         if (validMoves(move.getStartPosition()).contains(move)){
             ChessPiece pieceMoved = gameBoard.getPiece(move.getStartPosition());
             if (pieceMoved == null || pieceMoved.getTeamColor() != teamTurn) {
-                throw new InvalidMoveException("Invalid Move");
+                throw new InvalidMoveException("Invalid Move or Wrong Turn");
             }
             gameBoard.addPiece(move.getStartPosition(), null);
             if(pieceMoved.getPieceType() == ChessPiece.PieceType.KING) {

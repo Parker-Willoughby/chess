@@ -322,7 +322,7 @@ public class RepelFirst implements NotificationHandler {
                         - help
                         - redraw (redraws current board)
                         - leave (leaves game)
-                        - move <Start Row> <Start Col> <End Row> <End Col> <NONE|KNIGHT|BISHOP|ROOK|QUEEN> \n
+                        - move <Start Row> <Start Col> <End Row> <End Col> <NONE|KNIGHT|BISHOP|ROOK|QUEEN>
                                (makes a move and when applicable promotes pawn)
                         - resign (resigns game)
                         - highlight <Piece Row> <Piece Col> (shows legal moves)
@@ -386,14 +386,16 @@ public class RepelFirst implements NotificationHandler {
                     }
                     ChessPiece piece;
                     if (userColor.equals("WHITE")) {
-                        piece = board.getPiece(new ChessPosition(9 - i, j));
-                        if (toHighlight.contains(new ChessPosition(9 - i, j))) {
+                        ChessPosition toCheck = new ChessPosition(9 - i, j);
+                        piece = board.getPiece(toCheck);
+                        if (toHighlight.contains(toCheck) || highlight == toCheck) {
                             printBoard += EscapeSequences.SET_BG_COLOR_YELLOW;
                         }
                     }
                     else {
-                        piece = board.getPiece(new ChessPosition(i, 9 - j));
-                        if (toHighlight.contains(new ChessPosition(i, 9 - j))) {
+                        ChessPosition toCheck = new ChessPosition(i, 9 - j);
+                        piece = board.getPiece(toCheck);
+                        if (toHighlight.contains(toCheck) || highlight == toCheck) {
                             printBoard += EscapeSequences.SET_BG_COLOR_YELLOW;
                         }
                     }

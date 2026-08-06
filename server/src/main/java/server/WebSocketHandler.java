@@ -66,8 +66,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } catch (UnauthorizedException ex) {
             sendMessage(session, gameId, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: unauthorized"));
         } catch (Exception ex) {
-            ex.printStackTrace();
-            sendMessage(session, gameId, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + ex.getMessage()));
+            sendMessage(session, gameId, new ErrorMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage()));
         }
 
     }
@@ -80,10 +79,24 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private void connect(Session session, String username, ConnectCommand command) throws IOException, DataAccessException {
         connections.add(command.getGameID(), session);
         var message = String.format("%s has joined the game", username);
+        message += String.format(" as %s.", getPlayerColor(username, command.getGameID()));
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         GameData gameData = SQLGameDAO.getGame(command.getGameID());
         sendMessage(session, command.getGameID(), new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.game()));
         connections.broadcast(session, notification, command.getGameID());
+    }
+
+    private String getPlayerColor(String username, int gameId) throws DataAccessException {
+        GameData gameData = SQLGameDAO.getGame(gameId);
+        if (gameData.whiteUsername().equals(username)) {
+            return "white";
+        }
+        else if (gameData.blackUsername().equals(username)) {
+            return "black";
+        }
+        else {
+            return "an observer";
+        }
     }
 
     private void leaveGame(Session session, String username, LeaveGameCommand command) throws IOException, DataAccessException {
@@ -110,13 +123,19 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         if (getTeamStatus(username, command.getGameID()).equals("OBSERVER")) {
             throw new InvalidMoveException("Error: Not a valid player");
         }
+        GameData gameData = SQLGameDAO.getGame(command.getGameID());
+        ChessGame game;
+        if (gameData.game() != null) {
+            game = gameData.game();
+        }
+        else {
+            throw new IOException("Game already ended");
+        }
         var message = String.format("%s has resigned", username);
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(null, notification, command.getGameID());
         connections.remove(command.getGameID(), session);
-        GameData gameData = SQLGameDAO.getGame(command.getGameID());
-        ChessGame game = gameData.game();
-        GameData newGame = new GameData(gameData.gameID(), null, null, gameData.gameName(), game);
+        GameData newGame = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), null);
         SQLGameDAO.updateGame(newGame);
     }
 
@@ -131,22 +150,40 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 throw new InvalidMoveException("Error: Wrong turn");
             }
             ChessMove move = command.getMove();
+            int startRow = move.getStartPosition().getRow();
+            int startCol = move.getStartPosition().getColumn();
+            int endRow = move.getEndPosition().getRow();
+            int endCol = move.getEndPosition().getColumn();
             game.makeMove(move);
             GameData newGame = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
             SQLGameDAO.updateGame(newGame);
             connections.broadcast(null, new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game), command.getGameID());
-            connections.broadcast(session, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "A move was made"), command.getGameID());
+            connections.broadcast(session, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                    String.format("%s made the move (%s, %s) -> (%s, %s)", username, startRow, startCol, endRow, endCol)), command.getGameID());
             if (game.isInCheckmate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
-                connections.broadcast(null, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "Checkmate bro"), command.getGameID());
+                connections.broadcast(null, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s is in Checkmate", getOpponent(username, command.getGameID()))), command.getGameID());
             }
             else if (game.isInStalemate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
-                connections.broadcast(null, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "Stalemate bro"), command.getGameID());
+                connections.broadcast(null, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s is in Stalemate", getOpponent(username, command.getGameID()))), command.getGameID());
             }
             else if (game.isInCheck(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
-                connections.broadcast(null, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "Check bro"), command.getGameID());
+                connections.broadcast(null, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s is in Check", getOpponent(username, command.getGameID()))), command.getGameID());
             }
         } catch (Exception ex) {
-            throw new DataAccessException("Error");
+            throw new DataAccessException(ex.getMessage());
+        }
+    }
+
+    private String getOpponent(String username, int gameId) throws DataAccessException {
+        GameData data = SQLGameDAO.getGame(gameId);
+        if (username.equals(data.whiteUsername()) && data.blackUsername() != null) {
+            return data.blackUsername();
+        }
+        else if (username.equals(data.blackUsername()) && data.whiteUsername() != null) {
+            return data.blackUsername();
+        }
+        else {
+            return "absent player";
         }
     }
 
@@ -156,7 +193,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             return data.username();
         }
         else {
-            throw new UnauthorizedException("Error");
+            throw new UnauthorizedException("Error: unauthorized");
         }
     }
 
