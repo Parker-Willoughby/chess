@@ -283,6 +283,9 @@ public class RepelFirst implements NotificationHandler {
 
     public String redraw() throws InvalidMoveException {
         assertInGame();
+        if (currentGame == null) {
+            throw new InvalidMoveException("Error: you are in a game that has ended");
+        }
         return buildBoard(null);
     }
 
@@ -296,6 +299,9 @@ public class RepelFirst implements NotificationHandler {
                 col = Integer.parseInt(params[1]);
             } catch (NumberFormatException e) {
                 throw new InvalidMoveException("Error: row and column must be numbers");
+            }
+            if (currentGame == null) {
+                throw new InvalidMoveException("Error: you are in a game that has ended");
             }
             return buildBoard(new ChessPosition(row, col));
         }

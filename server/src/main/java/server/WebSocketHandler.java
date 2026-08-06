@@ -78,10 +78,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void connect(Session session, String username, ConnectCommand command) throws IOException, DataAccessException {
         GameData gameData = SQLGameDAO.getGame(command.getGameID());
+        connections.add(command.getGameID(), session);
         if (gameData.game() == null) {
             throw new DataAccessException("This game has ended, please leave game and try a new one");
         }
-        connections.add(command.getGameID(), session);
         var message = String.format("%s has joined the game", username);
         message += String.format(" as %s.", getPlayerColor(username, command.getGameID()));
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
@@ -140,8 +140,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         var message = String.format("%s has resigned", username);
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(null, notification, command.getGameID());
-        connections.remove(command.getGameID(), session);
-        GameData newGame = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), null);
+        //connections.remove(command.getGameID(), session);
+        GameData newGame = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName() + "-ENDED", null);
         SQLGameDAO.updateGame(newGame);
     }
 
@@ -173,11 +173,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 connections.broadcast(null, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                         String.format("%s is in Checkmate", getOpponent(username, command.getGameID()))), command.getGameID());
             }
-            else if (game.isInStalemate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+            else if (game.isInStalemate(ChessGame.TeamColor.WHITE) || game.isInStalemate(ChessGame.TeamColor.BLACK)) {
                 connections.broadcast(null, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                         String.format("%s is in Stalemate", getOpponent(username, command.getGameID()))), command.getGameID());
             }
-            else if (game.isInCheck(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+            else if (game.isInCheck(ChessGame.TeamColor.WHITE) || game.isInCheck(ChessGame.TeamColor.BLACK)) {
                 connections.broadcast(null, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                         String.format("%s is in Check", getOpponent(username, command.getGameID()))), command.getGameID());
             }
