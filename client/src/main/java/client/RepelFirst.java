@@ -403,18 +403,7 @@ public class RepelFirst implements NotificationHandler {
                     printBoard += printBoardHelper(i, j, board, toHighlight);
                 }
                 else {
-                    if (userColor.equals("WHITE")) {
-                        printBoard += EscapeSequences.SET_BG_COLOR_LIGHT_GREY + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + (9 - i) + " ";
-                        if (j == 9) {
-                            printBoard += EscapeSequences.RESET_BG_COLOR + "\n";
-                        }
-                    }
-                    else {
-                        printBoard += EscapeSequences.SET_BG_COLOR_LIGHT_GREY + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i + " ";
-                        if (j == 9) {
-                            printBoard += EscapeSequences.RESET_BG_COLOR + "\n";
-                        }
-                    }
+                    printBoard += printBoardHelper2(j);
                 }
             }
         }
@@ -426,6 +415,23 @@ public class RepelFirst implements NotificationHandler {
             printBoard += "    h  g  f  e  d  c  b  a    ";
         }
         printBoard += EscapeSequences. RESET_BG_COLOR + "\n" + EscapeSequences.RESET_TEXT_COLOR;
+        return printBoard;
+    }
+
+    public String printBoardHelper2(int j) {
+        String printBoard = "";
+        if (userColor.equals("WHITE")) {
+            printBoard += EscapeSequences.SET_BG_COLOR_LIGHT_GREY + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + (9 - i) + " ";
+            if (j == 9) {
+                printBoard += EscapeSequences.RESET_BG_COLOR + "\n";
+            }
+        }
+        else {
+            printBoard += EscapeSequences.SET_BG_COLOR_LIGHT_GREY + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i + " ";
+            if (j == 9) {
+                printBoard += EscapeSequences.RESET_BG_COLOR + "\n";
+            }
+        }
         return printBoard;
     }
 
