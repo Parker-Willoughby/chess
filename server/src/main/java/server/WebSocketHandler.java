@@ -189,7 +189,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             return data.blackUsername();
         }
         else if (username.equals(data.blackUsername()) && data.whiteUsername() != null) {
-            return data.blackUsername();
+            return data.whiteUsername();
         }
         else {
             return "absent player";

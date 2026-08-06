@@ -357,6 +357,7 @@ public class RepelFirst implements NotificationHandler {
 
     private String buildBoard(ChessPosition highlight) {
         Collection<ChessPosition> toHighlight = new ArrayList<>();
+        toHighlight.add(highlight);
         if (highlight != null) {
             for (ChessMove move: currentGame.validMoves(highlight)) {
                 toHighlight.add(move.getEndPosition());
@@ -393,14 +394,14 @@ public class RepelFirst implements NotificationHandler {
                     if (userColor.equals("WHITE")) {
                         ChessPosition toCheck = new ChessPosition(9 - i, j);
                         piece = board.getPiece(toCheck);
-                        if (toHighlight.contains(toCheck) || highlight == toCheck) {
+                        if (toHighlight.contains(toCheck)) {
                             printBoard += EscapeSequences.SET_BG_COLOR_YELLOW;
                         }
                     }
                     else {
                         ChessPosition toCheck = new ChessPosition(i, 9 - j);
                         piece = board.getPiece(toCheck);
-                        if (toHighlight.contains(toCheck) || highlight == toCheck) {
+                        if (toHighlight.contains(toCheck)) {
                             printBoard += EscapeSequences.SET_BG_COLOR_YELLOW;
                         }
                     }
