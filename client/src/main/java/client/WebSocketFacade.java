@@ -46,7 +46,6 @@ public class WebSocketFacade extends Endpoint {
                         try {
                             notificationHandler.loadGame(load);
                         } catch (InvalidMoveException e) {
-
                         }
                     }
                 }

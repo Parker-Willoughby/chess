@@ -170,13 +170,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             connections.broadcast(session, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                     String.format("%s made the move (%s, %s) -> (%s, %s)", username, startRow, startCol, endRow, endCol)), command.getGameID());
             if (game.isInCheckmate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
-                connections.broadcast(null, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s is in Checkmate", getOpponent(username, command.getGameID()))), command.getGameID());
+                connections.broadcast(null, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                        String.format("%s is in Checkmate", getOpponent(username, command.getGameID()))), command.getGameID());
             }
             else if (game.isInStalemate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
-                connections.broadcast(null, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s is in Stalemate", getOpponent(username, command.getGameID()))), command.getGameID());
+                connections.broadcast(null, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                        String.format("%s is in Stalemate", getOpponent(username, command.getGameID()))), command.getGameID());
             }
             else if (game.isInCheck(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
-                connections.broadcast(null, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s is in Check", getOpponent(username, command.getGameID()))), command.getGameID());
+                connections.broadcast(null, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                        String.format("%s is in Check", getOpponent(username, command.getGameID()))), command.getGameID());
             }
         } catch (Exception ex) {
             throw new DataAccessException(ex.getMessage());

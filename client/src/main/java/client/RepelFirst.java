@@ -288,9 +288,20 @@ public class RepelFirst implements NotificationHandler {
 
     public String highlight(String... params) throws InvalidMoveException {
         assertInGame();
-        int row = Integer.parseInt(params[0]);
-        int col = Integer.parseInt(params[1]);
-        return buildBoard(new ChessPosition(row, col));
+        if (params.length == 2) {
+            int row;
+            int col;
+            try {
+                row = Integer.parseInt(params[0]);
+                col = Integer.parseInt(params[1]);
+            } catch (NumberFormatException e) {
+                throw new InvalidMoveException("Error: row and column must be numbers");
+            }
+            return buildBoard(new ChessPosition(row, col));
+        }
+        else {
+            throw new InvalidMoveException("Incorrect number of parameters");
+        }
     }
 
     public String logout() throws InvalidMoveException {
@@ -385,55 +396,11 @@ public class RepelFirst implements NotificationHandler {
                     if (lastColor.equals("WHITE")) {
                         printBoard += EscapeSequences.SET_BG_COLOR_BLACK;
                         lastColor = "BLACK";
-                    }
-                    else {
+                    } else {
                         printBoard += EscapeSequences.SET_BG_COLOR_WHITE;
                         lastColor = "WHITE";
                     }
-                    ChessPiece piece;
-                    if (userColor.equals("WHITE")) {
-                        ChessPosition toCheck = new ChessPosition(9 - i, j);
-                        piece = board.getPiece(toCheck);
-                        if (toHighlight.contains(toCheck)) {
-                            printBoard += EscapeSequences.SET_BG_COLOR_YELLOW;
-                        }
-                    }
-                    else {
-                        ChessPosition toCheck = new ChessPosition(i, 9 - j);
-                        piece = board.getPiece(toCheck);
-                        if (toHighlight.contains(toCheck)) {
-                            printBoard += EscapeSequences.SET_BG_COLOR_YELLOW;
-                        }
-                    }
-                    if (piece == null) {
-                        printBoard += "   ";
-                    }
-                    else {
-                        if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-                            printBoard += EscapeSequences.SET_TEXT_COLOR_RED;
-                        }
-                        else {
-                            printBoard += EscapeSequences.SET_TEXT_COLOR_BLUE;
-                        }
-                        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
-                            printBoard += " P ";
-                        }
-                        else if (piece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
-                            printBoard += " N ";
-                        }
-                        else if (piece.getPieceType() == ChessPiece.PieceType.BISHOP) {
-                            printBoard += " B ";
-                        }
-                        else if (piece.getPieceType() == ChessPiece.PieceType.ROOK) {
-                            printBoard += " R ";
-                        }
-                        else if (piece.getPieceType() == ChessPiece.PieceType.QUEEN) {
-                            printBoard += " Q ";
-                        }
-                        else if (piece.getPieceType() == ChessPiece.PieceType.KING) {
-                            printBoard += " K ";
-                        }
-                    }
+                    printBoard += printBoardHelper(i, j, board, toHighlight);
                 }
                 else {
                     if (userColor.equals("WHITE")) {
@@ -459,6 +426,55 @@ public class RepelFirst implements NotificationHandler {
             printBoard += "    h  g  f  e  d  c  b  a    ";
         }
         printBoard += EscapeSequences. RESET_BG_COLOR + "\n" + EscapeSequences.RESET_TEXT_COLOR;
+        return printBoard;
+    }
+
+    public String printBoardHelper(int i, int j, ChessBoard board, Collection<ChessPosition> toHighlight) {
+        String printBoard =  "";
+        ChessPiece piece;
+        if (userColor.equals("WHITE")) {
+            ChessPosition toCheck = new ChessPosition(9 - i, j);
+            piece = board.getPiece(toCheck);
+            if (toHighlight.contains(toCheck)) {
+                printBoard += EscapeSequences.SET_BG_COLOR_YELLOW;
+            }
+        }
+        else {
+            ChessPosition toCheck = new ChessPosition(i, 9 - j);
+            piece = board.getPiece(toCheck);
+            if (toHighlight.contains(toCheck)) {
+                printBoard += EscapeSequences.SET_BG_COLOR_YELLOW;
+            }
+        }
+        if (piece == null) {
+            printBoard += "   ";
+        }
+        else {
+            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                printBoard += EscapeSequences.SET_TEXT_COLOR_RED;
+            }
+            else {
+                printBoard += EscapeSequences.SET_TEXT_COLOR_BLUE;
+            }
+            if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+                printBoard += " P ";
+            }
+            else if (piece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
+                printBoard += " N ";
+            }
+            else if (piece.getPieceType() == ChessPiece.PieceType.BISHOP) {
+                printBoard += " B ";
+            }
+            else if (piece.getPieceType() == ChessPiece.PieceType.ROOK) {
+                printBoard += " R ";
+            }
+            else if (piece.getPieceType() == ChessPiece.PieceType.QUEEN) {
+                printBoard += " Q ";
+            }
+            else if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+                printBoard += " K ";
+            }
+        }
         return printBoard;
     }
 }
