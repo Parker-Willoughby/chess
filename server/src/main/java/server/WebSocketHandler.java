@@ -77,26 +77,32 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void connect(Session session, String username, ConnectCommand command) throws IOException, DataAccessException {
+        GameData gameData = SQLGameDAO.getGame(command.getGameID());
+        if (gameData.game() == null) {
+            throw new DataAccessException("This game has ended, please leave game and try a new one");
+        }
         connections.add(command.getGameID(), session);
         var message = String.format("%s has joined the game", username);
         message += String.format(" as %s.", getPlayerColor(username, command.getGameID()));
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-        GameData gameData = SQLGameDAO.getGame(command.getGameID());
         sendMessage(session, command.getGameID(), new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.game()));
         connections.broadcast(session, notification, command.getGameID());
     }
 
     private String getPlayerColor(String username, int gameId) throws DataAccessException {
         GameData gameData = SQLGameDAO.getGame(gameId);
-        if (gameData.whiteUsername().equals(username)) {
-            return "white";
+        if (gameData.whiteUsername() != null) {
+            if (gameData.whiteUsername().equals(username)){
+                return "white";
+            }
         }
-        else if (gameData.blackUsername().equals(username)) {
-            return "black";
+        if (gameData.blackUsername() != null) {
+            if (gameData.blackUsername().equals(username)) {
+                return "black";
+            }
         }
-        else {
-            return "an observer";
-        }
+        return "an observer";
+
     }
 
     private void leaveGame(Session session, String username, LeaveGameCommand command) throws IOException, DataAccessException {
@@ -129,7 +135,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             game = gameData.game();
         }
         else {
-            throw new IOException("Game already ended");
+            throw new IOException("A player has already resigned");
         }
         var message = String.format("%s has resigned", username);
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
@@ -146,6 +152,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
             GameData gameData = SQLGameDAO.getGame(command.getGameID());
             ChessGame game = gameData.game();
+            if (game == null) {
+                throw new DataAccessException("Game has already ended or does not exist");
+            }
             if (getTeamStatus(username, command.getGameID()) != game.getTeamTurn().toString()) {
                 throw new InvalidMoveException("Error: Wrong turn");
             }

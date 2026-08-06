@@ -43,7 +43,11 @@ public class WebSocketFacade extends Endpoint {
                     }
                     else if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
                         LoadGameMessage load = new Gson().fromJson(message, LoadGameMessage.class);
-                        notificationHandler.loadGame(load);
+                        try {
+                            notificationHandler.loadGame(load);
+                        } catch (InvalidMoveException e) {
+
+                        }
                     }
                 }
             });

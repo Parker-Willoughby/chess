@@ -79,8 +79,13 @@ public class RepelFirst implements NotificationHandler {
         printPrompt();
     }
 
-    public void loadGame(LoadGameMessage message) {
+    public void loadGame(LoadGameMessage message) throws InvalidMoveException {
         currentGame = message.getGame();
+        if (currentGame == null) {
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Invalid game joined, leaving now");
+            leave();
+            printPrompt();
+        }
         System.out.println("\n" + buildBoard(null));
         printPrompt();
     }
@@ -266,10 +271,10 @@ public class RepelFirst implements NotificationHandler {
         String line = scanner.nextLine();
         if (line.equals("Y")) {
             ws.resign();
-            return "You have resigned";
+            return "Resigning";
         }
         else if (line.equals("N")) {
-            return " ";
+            return "Not Resigning";
         }
         else {
             throw new InvalidMoveException("Please input Y or N");
